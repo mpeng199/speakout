@@ -315,7 +315,13 @@ html.lenis body {
   transition:
     background-color 0.35s var(--ease-out),
     color 0.35s var(--ease-out),
-    box-shadow 0.35s var(--ease-out);
+    box-shadow 0.35s var(--ease-out),
+    scale 0.25s var(--ease-out);
+}
+/* A small press. `scale` composes with the magnetic transform instead of replacing it. */
+.btn:active:not([aria-disabled="true"]):not([disabled]),
+.site-nav-cta:active {
+  scale: 0.97;
 }
 .btn-amber {
   background: var(--color-amber);
