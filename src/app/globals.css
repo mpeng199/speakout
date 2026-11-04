@@ -1350,3 +1350,57 @@ html.menu-open {
     color: var(--color-amber);
   }
 }
+
+/* ───────────────────────────── Contrast preferences ───────────────────────────── */
+
+/* People who ask for more contrast get firmer rules and stronger secondary text. */
+@media (prefers-contrast: more) {
+  :root {
+    --paper-2: rgb(236 235 231 / 0.92);
+    --paper-3: rgb(236 235 231 / 0.8);
+    --paper-line: rgb(236 235 231 / 0.45);
+    --night-2: rgb(14 15 19 / 0.92);
+    --night-3: rgb(14 15 19 / 0.8);
+    --night-line: rgb(14 15 19 / 0.45);
+  }
+  .hero-shade,
+  .evening-shade {
+    background-color: rgb(14 15 19 / 0.35);
+  }
+}
+
+/* Windows forced colours: keep shapes visible when the system replaces colours. */
+@media (forced-colors: active) {
+  .btn,
+  .site-nav-cta,
+  .label-card,
+  .signup-row,
+  .fact,
+  .tba-chip {
+    border: 1px solid CanvasText;
+  }
+  .eyebrow::before,
+  .topic-dot,
+  .signup-check {
+    background: CanvasText;
+    forced-color-adjust: none;
+  }
+  .evening-track > span {
+    background: Highlight;
+  }
+}
+
+/* Graduation ticks on the evening progress, like the marks on a measuring vial */
+.evening-track {
+  overflow: visible;
+}
+.evening-track::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 4px;
+  height: 5px;
+  background-image: repeating-linear-gradient(90deg, var(--paper-line) 0 1px, transparent 1px 12px);
+  pointer-events: none;
+}
