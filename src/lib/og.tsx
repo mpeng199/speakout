@@ -33,6 +33,28 @@ async function loadFont(family: string, spec: string, text: string, stretch?: st
  */
 const lightSrc = `data:image/jpeg;base64,${await readFile(join(process.cwd(), "src/lib/og-light.jpg"), "base64")}`;
 
+/*
+ * Headline size for the share card: the largest that keeps every line clear of the label card.
+ * Lines that sit above the card may run wide; lines level with it must stop before it. Widths
+ * and the card's height are estimated (Mona Sans semi-expanded at -0.05em averages under 0.53em
+ * a character; a detail row wraps at about 30 characters), calibrated on rendered cards.
+ */
+const CARD_LEFT = 1200 - 64 - 450;
+function fitHeadline(lines: string[], rows: [string, string][]): number {
+  const cardHeight = 139 + rows.reduce((h, [, d]) => h + 19 + 23 * Math.max(1, Math.ceil(d.length / 30)), 0);
+  const cardTop = 630 - 56 - cardHeight;
+  for (let size = 96; size > 48; size -= 4) {
+    const lh = size * 0.94;
+    const fits = lines.every((line, i) => {
+      const bottom = 120 + i * lh + size * 0.95;
+      const level = bottom > cardTop - 10;
+      return !level || 60 + line.length * size * 0.53 <= CARD_LEFT - 24;
+    });
+    if (fits && 120 + lines.length * lh <= 600) return size;
+  }
+  return 48;
+}
+
 type OgCard = {
   eyebrow: string;
   lines: string[];
@@ -65,7 +87,7 @@ async function drawOg({ eyebrow, lines, labelLeft, labelRight, labelTitle, rows 
     loadFont("Source+Serif+4", "wght@400", serifText),
   ]);
 
-  const headlineSize = lines.some((l) => l.length > 14) ? 76 : 96;
+  const headlineSize = fitHeadline(lines, rows);
 
   const png = new ImageResponse(
     (
