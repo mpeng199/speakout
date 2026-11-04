@@ -4,8 +4,10 @@ import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 
 /**
- * Loads the motion layer after the page is interactive. All content is in the
- * server-rendered HTML and fully readable without this.
+ * Loads the motion layer after the page is interactive. Render it last inside
+ * a page, so it starts only after the page has hydrated (the motion layer
+ * splits text and pins sections, which must not happen before React has
+ * adopted that markup). All content is readable without it.
  */
 export function Motion() {
   const pathname = usePathname();

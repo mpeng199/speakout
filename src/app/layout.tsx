@@ -3,7 +3,6 @@ import localFont from "next/font/local";
 import { site } from "@/content/series";
 import { siteUrl } from "@/lib/content";
 import { Nav } from "@/components/Nav";
-import { Motion } from "@/components/motion/Motion";
 import "./globals.css";
 
 /* Self-hosted, trimmed builds of Mona Sans and Source Serif 4 (see src/fonts/README.md). */
@@ -80,7 +79,6 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <main id="main" tabIndex={-1} className="outline-none">
           {children}
         </main>
-        <Motion />
       </body>
     </html>
   );

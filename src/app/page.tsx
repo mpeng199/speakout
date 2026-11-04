@@ -9,6 +9,7 @@ import { Faq } from "@/components/sections/Faq";
 import { SiteFooter } from "@/components/sections/SiteFooter";
 import { SeriesJsonLd } from "@/components/JsonLd";
 import { ViewTransition } from "react";
+import { Motion } from "@/components/motion/Motion";
 
 export default function Home() {
   return (
@@ -24,6 +25,8 @@ export default function Home() {
       <Faq />
       <SiteFooter />
       <SeriesJsonLd />
+      {/* Last on the page, so motion only starts once everything above has hydrated */}
+      <Motion />
       </div>
     </ViewTransition>
   );

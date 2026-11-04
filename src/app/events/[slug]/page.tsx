@@ -9,6 +9,7 @@ import { AmberField } from "@/components/visuals/AmberField";
 import { Label } from "@/components/ui/Label";
 import { EventJsonLd } from "@/components/JsonLd";
 import { SiteFooter } from "@/components/sections/SiteFooter";
+import { Motion } from "@/components/motion/Motion";
 
 export async function generateStaticParams() {
   return events.map((e) => ({ slug: e.slug }));
@@ -275,6 +276,7 @@ export default async function EventPage({ params }: PageProps<"/events/[slug]">)
 
       <SiteFooter />
       <EventJsonLd event={event} />
+      <Motion />
       </div>
     </ViewTransition>
   );

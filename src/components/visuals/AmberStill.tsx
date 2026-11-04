@@ -13,6 +13,7 @@ export function AmberStill({ align = "right" }: { align?: "right" | "center" }) 
       preserveAspectRatio={right ? "xMaxYMax slice" : "xMidYMid slice"}
       aria-hidden="true"
       focusable="false"
+      overflow="hidden"
     >
       <defs>
         <radialGradient id={`${id}-pool`} cx={right ? 1180 : 960} cy={right ? 700 : 560} r="760" gradientUnits="userSpaceOnUse" gradientTransform={`translate(${right ? 1180 : 960} ${right ? 700 : 560}) scale(1.25 0.8) translate(${right ? -1180 : -960} ${right ? -700 : -560})`}>
@@ -31,9 +32,12 @@ export function AmberStill({ align = "right" }: { align?: "right" | "center" }) 
           <stop offset="1" stopColor="#ffd391" stopOpacity="0" />
         </radialGradient>
       </defs>
-      <rect width="1600" height="1000" fill={`url(#${id}-pool)`} />
-      <rect width="1600" height="1000" fill={`url(#${id}-core)`} />
-      <rect width="1600" height="1000" fill={`url(#${id}-glint)`} />
+      {/* Oversized fills so the glow can be scaled (lighting cues) without showing an edge */}
+      <g className="amber-still-glow" data-cx={right ? 1180 : 960} data-cy={right ? 700 : 560}>
+        <rect x="-1600" y="-1000" width="4800" height="3000" fill={`url(#${id}-pool)`} />
+        <rect x="-1600" y="-1000" width="4800" height="3000" fill={`url(#${id}-core)`} />
+        <rect x="-1600" y="-1000" width="4800" height="3000" fill={`url(#${id}-glint)`} />
+      </g>
     </svg>
   );
 }

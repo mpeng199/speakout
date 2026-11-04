@@ -73,7 +73,9 @@ export function SiteFooter() {
         </div>
 
         <div className="footer-mark mt-[clamp(4rem,9vw,8rem)]" aria-hidden="true">
-          <span data-fit>{site.name}</span>
+          <span data-fit data-reveal="chars">
+            {site.name}
+          </span>
         </div>
 
         <div className="mt-6 flex flex-col gap-3 border-t border-[color:var(--paper-line)] pt-6 sm:flex-row sm:items-center sm:justify-between">

@@ -153,13 +153,38 @@ function lineReveals() {
   };
 }
 
+/** The footer wordmark: each letter rises out of its mask, left to right. */
+function charReveals() {
+  const splits: SplitText[] = [];
+  document.querySelectorAll<HTMLElement>("[data-reveal='chars']").forEach((el) => {
+    splits.push(
+      SplitText.create(el, {
+        type: "chars",
+        mask: "chars",
+        aria: "none",
+        autoSplit: true,
+        onSplit(self) {
+          return gsap.from(self.chars, {
+            yPercent: 105,
+            duration: 1.1,
+            ease: "expo.out",
+            stagger: 0.045,
+            scrollTrigger: { trigger: el, start: "top 95%", once: true },
+          });
+        },
+      }),
+    );
+  });
+  return () => splits.forEach((s) => s.revert());
+}
+
 function fades() {
   const tweens: gsap.core.Tween[] = [];
   document.querySelectorAll<HTMLElement>("[data-reveal='fade']").forEach((el) => {
     tweens.push(
       gsap.from(el, {
         y: 22,
-        autoAlpha: 0,
+        opacity: 0,
         duration: 0.9,
         ease: EASE,
         delay: Number(el.dataset.revealDelay ?? 0),
@@ -172,7 +197,7 @@ function fades() {
     tweens.push(
       gsap.from(items, {
         y: 26,
-        autoAlpha: 0,
+        opacity: 0,
         duration: 0.85,
         ease: EASE,
         stagger: 0.07,
@@ -186,7 +211,7 @@ function fades() {
     if (arrivedByMorph && card.classList.contains("vt-label")) return;
     const rows = card.querySelectorAll<HTMLElement>("[data-print]");
     const tl = gsap.timeline({ scrollTrigger: { trigger: card, start: "top 86%", once: true } });
-    tl.from(card, { y: 24, autoAlpha: 0, duration: 0.7, ease: EASE });
+    tl.from(card, { y: 24, opacity: 0, duration: 0.7, ease: EASE });
     tl.from(rows, { clipPath: "inset(0 100% 0 0)", duration: 0.45, ease: EASE, stagger: 0.06 }, 0.15);
   });
   return () => tweens.forEach((t) => t.scrollTrigger?.kill());
@@ -284,9 +309,25 @@ function evening() {
     { ...base, x: 0.5, y: 0.5, r: 1.6, gain: 1.05, spread: 0.95, scale: 1.8 },
   ];
   if (field) Object.assign(field.params, cues[0]);
+  const still = section.querySelector<SVGGElement>(".amber-still-glow");
+  const stillCues = [
+    { scale: 1, x: 0, y: 0, opacity: 1 },
+    { scale: 0.56, x: landscape ? 140 : 0, y: landscape ? -40 : 80, opacity: 1 },
+    { scale: 1.7, x: 0, y: 0, opacity: 0.9 },
+  ];
+  // Tween a plain object and write the SVG transform ourselves (scale around the glow centre).
+  const glow = { ...stillCues[0] };
+  const cx = Number(still?.dataset.cx ?? 960);
+  const cy = Number(still?.dataset.cy ?? 560);
+  const paintGlow = () => {
+    if (!still) return;
+    still.setAttribute("transform", `translate(${cx + glow.x} ${cy + glow.y}) scale(${glow.scale}) translate(${-cx} ${-cy})`);
+    still.style.opacity = String(glow.opacity);
+  };
+  paintGlow();
 
-  gsap.set(steps.slice(1), { autoAlpha: 0 });
-  steps.forEach((s, i) => s.setAttribute("aria-hidden", i === 0 ? "false" : "true"));
+  // Opacity only (no visibility/aria changes), so every step stays available to screen readers.
+  gsap.set(steps.slice(1), { opacity: 0 });
 
   const tl = gsap.timeline({
     defaults: { ease: "none" },
@@ -303,7 +344,6 @@ function evening() {
         const idx = Math.min(steps.length - 1, Math.floor(self.progress * steps.length * 0.999));
         if (counter) counter.textContent = String(idx + 1).padStart(2, "0");
         dots.forEach((d, i) => d.classList.toggle("is-active", i === idx));
-        steps.forEach((s, i) => s.setAttribute("aria-hidden", i === idx ? "false" : "true"));
       },
     },
   });
@@ -320,12 +360,16 @@ function evening() {
     const incoming = steps[i];
     const outLines = outgoing.querySelectorAll("[data-step-line]");
     const inLines = incoming.querySelectorAll("[data-step-line]");
-    tl.to(outLines, { yPercent: -36, autoAlpha: 0, duration: 0.2, stagger: 0.02, ease: "power2.in" }, at);
-    tl.set(outgoing, { autoAlpha: 0 }, at + 0.26);
-    tl.set(incoming, { autoAlpha: 1 }, at + 0.12);
-    tl.fromTo(inLines, { yPercent: 56, autoAlpha: 0 }, { yPercent: 0, autoAlpha: 1, duration: 0.3, stagger: 0.03, ease: EASE }, at + 0.12);
+    tl.to(outLines, { yPercent: -36, opacity: 0, duration: 0.2, stagger: 0.02, ease: "power2.in" }, at);
+    tl.set(outgoing, { opacity: 0 }, at + 0.26);
+    tl.set(incoming, { opacity: 1 }, at + 0.12);
+    tl.fromTo(inLines, { yPercent: 56, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 0.3, stagger: 0.03, ease: EASE }, at + 0.12);
     if (field) {
       tl.to(field.params, { ...cues[i], duration: 0.6, ease: "power2.inOut" }, at - 0.1);
+    }
+    // The vector still follows the same cues where the shader is not running.
+    if (still) {
+      tl.to(glow, { ...stillCues[i], duration: 0.6, ease: "power2.inOut", onUpdate: paintGlow }, at - 0.1);
     }
   }
 
@@ -334,7 +378,10 @@ function evening() {
     tl.kill();
     delete section.dataset.pinned;
     gsap.set(steps, { clearProps: "all" });
-    steps.forEach((s) => s.removeAttribute("aria-hidden"));
+    if (still) {
+      still.removeAttribute("transform");
+      still.style.opacity = "";
+    }
   };
 }
 
@@ -389,6 +436,7 @@ export function setupMotion({ reduce }: { reduce: boolean }) {
         () => parallax(),
         () => fades(),
         () => lineReveals(),
+        () => charReveals(),
       ];
 
   (async () => {
