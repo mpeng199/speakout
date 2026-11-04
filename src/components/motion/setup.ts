@@ -85,24 +85,31 @@ function smoothAnchors(reduce: boolean) {
 function navTheme(reduce: boolean) {
   const nav = document.querySelector<HTMLElement>("[data-site-nav]");
   if (!nav) return () => {};
-  const sections = Array.from(document.querySelectorAll<HTMLElement>("[data-nav-theme]"));
   const triggers: ScrollTrigger[] = [];
-  sections.forEach((section) => {
-    triggers.push(
-      ScrollTrigger.create({
-        trigger: section,
-        start: () => `top top+=${navHeight() / 2}`,
-        end: () => `bottom top+=${navHeight() / 2}`,
-        onToggle: (self) => {
-          if (self.isActive) nav.dataset.theme = section.dataset.navTheme;
-        },
-      }),
-    );
-  });
+  // The bar takes the colours of whatever is painted under its centre line. Asking the browser
+  // (rather than measuring sections) stays right under the sticky hero, the sheet sliding over
+  // it and the pinned sequence, whose scroll length moves every section after it.
+  let pickedAt = Number.NEGATIVE_INFINITY;
+  const pick = () => {
+    pickedAt = window.scrollY;
+    for (const el of document.elementsFromPoint(window.innerWidth / 2, navHeight() / 2)) {
+      if (nav.contains(el)) continue;
+      const section = el.closest<HTMLElement>("[data-nav-theme]");
+      if (section) {
+        let theme = section.dataset.navTheme!;
+        // The clear bar suits a hero that stays put (sticky, on large screens). Where the hero
+        // scrolls, its headline and card pass under the bar, which then needs its backdrop.
+        if (theme === "hero" && getComputedStyle(section).position !== "sticky") theme = "night";
+        if (nav.dataset.theme !== theme) nav.dataset.theme = theme;
+        return;
+      }
+    }
+  };
   // The bar gets its background once the page has scrolled (always), and hides
   // on scroll down / shows on scroll up (motion only).
   const update = (y: number, direction: number) => {
     nav.classList.toggle("is-scrolled", y > 8);
+    if (Math.abs(y - pickedAt) > 2) pick();
     if (reduce) return;
     const menuOpen = document.documentElement.classList.contains("menu-open");
     const focusInside = nav.contains(document.activeElement);
@@ -116,7 +123,12 @@ function navTheme(reduce: boolean) {
       onUpdate: (self) => update(self.scroll(), self.direction),
     }),
   );
-  return () => triggers.forEach((t) => t.kill());
+  // Pins and resizes move sections without a scroll event.
+  ScrollTrigger.addEventListener("refresh", pick);
+  return () => {
+    ScrollTrigger.removeEventListener("refresh", pick);
+    triggers.forEach((t) => t.kill());
+  };
 }
 
 /* ───────────────────────────── Line reveals ───────────────────────────── */
