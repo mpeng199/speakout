@@ -125,8 +125,12 @@ function navTheme(reduce: boolean) {
   );
   // Pins and resizes move sections without a scroll event.
   ScrollTrigger.addEventListener("refresh", pick);
+  // Keyboard focus that lands in the bar (Tab, Shift+Tab, skip link) must not sit in a hidden bar.
+  const reveal = () => nav.classList.remove("is-hidden");
+  nav.addEventListener("focusin", reveal);
   return () => {
     ScrollTrigger.removeEventListener("refresh", pick);
+    nav.removeEventListener("focusin", reveal);
     triggers.forEach((t) => t.kill());
   };
 }
