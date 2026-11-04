@@ -591,8 +591,28 @@ html.lenis body {
 .faq-item[open] .faq-icon::after {
   transform: translate(-50%, -50%) rotate(0deg);
 }
-.faq-item summary:hover .faq-icon {
-  transform: rotate(90deg);
+/* Hover and keyboard focus fill the circle (a quarter turn of a plus sign would look the same). */
+.faq-item summary:focus-visible .faq-icon {
+  background: var(--color-night);
+  color: var(--color-paper);
+}
+.faq-item[open] summary:focus-visible .faq-icon {
+  color: var(--color-amber);
+}
+@media (hover: hover) {
+  .faq-icon {
+    transition:
+      transform 0.5s var(--ease-out),
+      background-color 0.35s var(--ease-out),
+      color 0.35s var(--ease-out);
+  }
+  .faq-item summary:hover .faq-icon {
+    background: var(--color-night);
+    color: var(--color-paper);
+  }
+  .faq-item[open] summary:hover .faq-icon {
+    color: var(--color-amber);
+  }
 }
 
 @supports (interpolate-size: allow-keywords) {
