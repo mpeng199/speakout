@@ -1276,3 +1276,12 @@ html.menu-open {
     display: none;
   }
 }
+
+/* Sticky hero on tall desktop screens, where the whole hero fits the viewport:
+   the paper sheet slides over it like a label laid on the counter. */
+@media (min-width: 64rem) and (min-height: 50rem) {
+  .hero-stack > .hero {
+    position: sticky;
+    top: 0;
+  }
+}

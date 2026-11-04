@@ -138,7 +138,12 @@ export function AmberField({ variant = "hero", id, className = "" }: { variant?:
     };
 
     const draw = (now: number) => {
-      if (!gl || !program) return;
+      if (disposed || !gl || !program) return;
+      // Fully covered by the next section (sticky hero): idle cheaply until uncovered.
+      if (wrap.closest("[data-covered]")) {
+        raf = window.setTimeout(() => requestAnimationFrame(draw), 250) as unknown as number;
+        return;
+      }
       if (ext && firstFrame && !gl.getProgramParameter(program, ext.COMPLETION_STATUS_KHR)) {
         raf = requestAnimationFrame(draw);
         return;

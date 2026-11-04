@@ -15,8 +15,11 @@ export default function Home() {
   return (
     <ViewTransition enter="page-in" exit="page-out" default="none">
       <div>
-      <Hero />
-      <About />
+      {/* On tall desktop screens the hero stays put while "What it is" slides over it */}
+      <div className="hero-stack">
+        <Hero />
+        <About />
+      </div>
       <Evening />
       <Topics />
       <Events />

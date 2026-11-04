@@ -228,6 +228,44 @@ function fades() {
 
 /* ───────────────────────────── Parallax ───────────────────────────── */
 
+/**
+ * Sticky hero (tall desktop screens): as the paper sheet slides over it, the
+ * hero recedes a little, and it is flagged as covered so the shader can rest.
+ */
+function heroStack(reduce: boolean) {
+  const stack = document.querySelector<HTMLElement>(".hero-stack");
+  const hero = stack?.querySelector<HTMLElement>(".hero");
+  const sheet = hero?.nextElementSibling as HTMLElement | null;
+  if (!stack || !hero || !sheet) return () => {};
+  const triggers: ScrollTrigger[] = [];
+  triggers.push(
+    ScrollTrigger.create({
+      trigger: sheet,
+      start: "top top",
+      onEnter: () => (hero.dataset.covered = "true"),
+      onLeaveBack: () => delete hero.dataset.covered,
+    }),
+  );
+  let tween: gsap.core.Tween | null = null;
+  const content = hero.querySelector<HTMLElement>(":scope > .wrap");
+  if (!reduce && content && getComputedStyle(hero).position === "sticky") {
+    tween = gsap.to(content, {
+      scale: 0.94,
+      opacity: 0.35,
+      transformOrigin: "50% 20%",
+      ease: "none",
+      scrollTrigger: { trigger: sheet, start: "top bottom", end: "top top", scrub: true },
+    });
+  }
+  return () => {
+    triggers.forEach((t) => t.kill());
+    tween?.scrollTrigger?.kill();
+    tween?.kill();
+    if (content) gsap.set(content, { clearProps: "transform,opacity" });
+    delete hero.dataset.covered;
+  };
+}
+
 function parallax() {
   const tweens: gsap.core.Tween[] = [];
   document.querySelectorAll<HTMLElement>("[data-parallax]").forEach((el) => {
@@ -432,7 +470,7 @@ export function setupMotion({ reduce }: { reduce: boolean }) {
   let cancelled = false;
 
   const steps: (() => (() => void) | void)[] = reduce
-    ? [() => teardownLenis(), () => smoothAnchors(reduce), () => navTheme(reduce), () => fitText()]
+    ? [() => teardownLenis(), () => smoothAnchors(reduce), () => navTheme(reduce), () => fitText(), () => heroStack(reduce)]
     : [
         () => {
           startLenis();
@@ -442,6 +480,7 @@ export function setupMotion({ reduce }: { reduce: boolean }) {
         () => fitText(),
         () => magnetic(),
         () => evening(),
+        () => heroStack(reduce),
         () => parallax(),
         () => fades(),
         () => lineReveals(),
