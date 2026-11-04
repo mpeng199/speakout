@@ -1,5 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { AmberField } from "@/components/visuals/AmberField";
+
+// Next.js adds noindex to 404 responses; the canonical inherited from the layout would point at the home page.
+export const metadata: Metadata = {
+  title: "Page not found",
+  description: "This page doesn’t exist. Speakout is a free evening series of talks on medicine in New York City.",
+  alternates: { canonical: null },
+};
 
 export default function NotFound() {
   return (
