@@ -357,7 +357,18 @@ function magnetic() {
 
 /* ───────────────────────────── The evening (pinned sequence) ───────────────────────────── */
 
+/**
+ * The pinned stage is at least 34rem tall (see globals.css), so it only pins where it fits on screen.
+ * On shorter windows (a phone held sideways) the three steps stack, as they do without JavaScript,
+ * and the choice follows rotation and resizing.
+ */
 function evening() {
+  const mm = gsap.matchMedia();
+  mm.add("(min-height: 34rem)", () => pinEvening());
+  return () => mm.revert();
+}
+
+function pinEvening() {
   const section = document.querySelector<HTMLElement>("[data-evening]");
   if (!section) return () => {};
   const stage = section.querySelector<HTMLElement>("[data-evening-stage]");
