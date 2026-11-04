@@ -157,11 +157,11 @@ export default async function EventPage({ params }: PageProps<"/events/[slug]">)
                 )}
                 <ShareButton
                   title={`${site.name} ${event.label}: ${event.display.title}`}
-                  className="t-label link-draw cursor-pointer border-0 bg-transparent py-2 text-[color:var(--paper-2)] hover:text-[color:var(--color-paper)]"
+                  className="t-label link-draw cursor-pointer border-0 bg-transparent py-2 text-[color:var(--paper-2)] hover:text-[color:var(--color-paper)] print:hidden"
                 />
               </div>
               {googleCalendar && !isPast ? (
-                <p className="t-label mt-6 flex flex-wrap items-baseline gap-x-5 text-[color:var(--paper-2)] intro-fade" style={{ "--d": 220 } as React.CSSProperties}>
+                <p className="t-label mt-6 flex flex-wrap items-baseline gap-x-5 text-[color:var(--paper-2)] intro-fade print:hidden" style={{ "--d": 220 } as React.CSSProperties}>
                   <span className="basis-full pb-1 sm:basis-auto sm:pb-0">Add to calendar:</span>
                   <a href={googleCalendar} target="_blank" rel="noopener noreferrer" className="link-draw py-2 hover:text-[color:var(--color-paper)]">
                     Google<span className="sr-only"> Calendar (opens in a new tab)</span>
@@ -207,7 +207,7 @@ export default async function EventPage({ params }: PageProps<"/events/[slug]">)
                 <p className="t-lead mt-6 max-w-[40ch] text-[color:var(--night-2)]" data-reveal="fade">
                   Each evening takes on one question about medicine or drug development, explained for people with no science background.
                 </p>
-                <Link href="/#topics" className="t-label link mt-6 inline-block">
+                <Link href="/#topics" className="t-label link mt-6 inline-block print:hidden">
                   See example topics →
                 </Link>
               </>

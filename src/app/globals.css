@@ -1479,3 +1479,168 @@ html.menu-open {
   background-image: repeating-linear-gradient(90deg, var(--paper-line) 0 1px, transparent 1px 12px);
   pointer-events: none;
 }
+
+/* ───────────────────────────── Print ─────────────────────────────
+   Browsers drop backgrounds when printing, so the light text of the dark panels would all but
+   vanish. On paper the palette is black on white, the light and the page chrome are left out,
+   and whatever the motion left mid-way is shown at rest. An event page prints as a plain flyer. */
+@media print {
+  :root {
+    --color-night: #000;
+    --color-paper: #000;
+    --paper-2: #222;
+    --paper-3: #555;
+    --paper-line: #bbb;
+    --night-2: #222;
+    --night-3: #555;
+    --night-line: #bbb;
+  }
+  @page {
+    margin: 14mm 14mm 16mm;
+  }
+  html,
+  body {
+    background: #fff !important;
+  }
+  .site-nav,
+  .skip-link,
+  .site-menu,
+  .amber-field,
+  .hero-shade,
+  .evening-light,
+  .evening-progress,
+  .evening-counter,
+  .site-footer,
+  .label-stack::before,
+  .label-stack::after,
+  .speaker-badge,
+  a.btn[href^="#"],
+  a[href="#format"] {
+    display: none !important;
+  }
+  main *,
+  main *::before,
+  main *::after {
+    background-color: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+  /* Scroll reveals and the pinned sequence leave inline opacity, transforms and pin sizes. */
+  main * {
+    opacity: 1 !important;
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+    translate: none !important;
+    scale: none !important;
+    clip-path: none !important;
+  }
+  .panel,
+  .hero,
+  .evening,
+  .evening-stage,
+  .pin-spacer,
+  .hero-stack > .hero {
+    position: static !important;
+    min-height: 0 !important;
+    height: auto !important;
+    max-height: none !important;
+    width: auto !important;
+    margin: 0 !important;
+    padding: 6mm 0 !important;
+    border-radius: 0 !important;
+    overflow: visible !important;
+  }
+  .hero > .wrap {
+    padding-top: 0 !important;
+  }
+  [data-pinned] .evening-inner {
+    display: block !important;
+    padding: 0 !important;
+  }
+  [data-pinned] .evening-steps {
+    display: grid !important;
+    gap: 6mm;
+    margin-top: 6mm !important;
+  }
+  [data-pinned] .evening-step {
+    position: static !important;
+  }
+  .label-card {
+    border: 1px solid #bbb;
+    border-top: 2mm solid var(--color-amber);
+  }
+  .btn {
+    min-height: 0;
+    padding: 0;
+  }
+  /* On paper a link is only useful if its address is written out. */
+  a.btn[href^="http"]::after {
+    content: "  " attr(href);
+    font-weight: 400;
+  }
+  .label-card,
+  .topic,
+  .faq-item,
+  .evening-step,
+  li {
+    break-inside: avoid;
+  }
+  h1,
+  h2,
+  h3 {
+    break-after: avoid;
+  }
+  .faq-item::details-content {
+    block-size: auto !important;
+    content-visibility: visible !important;
+  }
+  /* Paper sizes: the screen scale (set in vw) would run an event page to four pages. */
+  .t-hero {
+    font-size: 34pt !important;
+  }
+  .t-d1 {
+    font-size: 22pt !important;
+  }
+  .t-d2 {
+    font-size: 16pt !important;
+  }
+  .t-d3 {
+    font-size: 13pt !important;
+  }
+  .t-lead {
+    font-size: 11.5pt !important;
+  }
+  .t-body,
+  .label-row dd {
+    font-size: 10pt !important;
+  }
+  .t-label {
+    font-size: 7pt !important;
+  }
+  .panel,
+  .hero,
+  .evening {
+    padding: 4mm 0 !important;
+  }
+  main [class*="mt-"] {
+    margin-top: 3mm !important;
+  }
+  /* Heroes are sized to the screen (100svh would be a whole sheet). */
+  main section {
+    min-height: 0 !important;
+  }
+  main section > .wrap {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+  main [class*="gap-y-"] {
+    row-gap: 4mm !important;
+  }
+  .eyebrow::before {
+    background-color: var(--color-amber) !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
