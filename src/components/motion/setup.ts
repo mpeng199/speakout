@@ -61,7 +61,8 @@ function smoothAnchors(reduce: boolean) {
     history.pushState(null, "", url.hash);
     const go = () => {
       if (lenis && !reduce) {
-        lenis.scrollTo(target, { offset: url.hash === "#top" ? 0 : -navHeight() + 1, duration: 1.2, onComplete: focusTarget });
+        // No extra offset: Lenis already honours the target's scroll-margin-top (the nav height, see globals.css).
+        lenis.scrollTo(target, { duration: 1.2, onComplete: focusTarget });
       } else {
         window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - navHeight(), behavior: "auto" });
         focusTarget();
@@ -458,7 +459,9 @@ function fitText() {
   };
   fit();
   document.fonts?.ready.then(fit);
-  const ro = new ResizeObserver(fit);
+  // Resizing the text changes the observed parent's height; doing it inside the callback makes
+  // Safari report "ResizeObserver loop completed with undelivered notifications".
+  const ro = new ResizeObserver(() => requestAnimationFrame(fit));
   els.forEach((el) => el.parentElement && ro.observe(el.parentElement));
   return () => ro.disconnect();
 }

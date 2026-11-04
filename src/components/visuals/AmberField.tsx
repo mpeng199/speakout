@@ -215,8 +215,11 @@ export function AmberField({ variant = "hero", id, className = "" }: { variant?:
         loadPhoto(); // no fast GPU: show the pre-rendered light instead
         return;
       }
-      const info = gl.getExtension("WEBGL_debug_renderer_info");
-      const renderer = String(info ? gl.getParameter(info.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER));
+      // Chrome masks RENDERER as "WebKit WebGL", so only then ask the debug extension
+      // (Firefox deprecates it and logs a warning each time it is requested).
+      let renderer = String(gl.getParameter(gl.RENDERER));
+      const info = /^webkit webgl$/i.test(renderer) ? gl.getExtension("WEBGL_debug_renderer_info") : null;
+      if (info) renderer = String(gl.getParameter(info.UNMASKED_RENDERER_WEBGL));
       const forced = new URLSearchParams(location.search).has("forcegl"); // QA only
       if (!forced && /swiftshader|llvmpipe|softpipe|software|basic render/i.test(renderer)) {
         gl.getExtension("WEBGL_lose_context")?.loseContext();

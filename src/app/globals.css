@@ -47,6 +47,10 @@
 /* ───────────────────────────── Base ───────────────────────────── */
 
 html {
+  /* The pinned sequence inserts a spacer above the fold once the page is up. Scroll anchoring
+     (Chrome, Firefox) then moves the scroll position and Back lands in the wrong place;
+     Safari has no anchoring and was already right. */
+  overflow-anchor: none;
   -webkit-text-size-adjust: 100%;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
