@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/Label";
 import { EventJsonLd } from "@/components/JsonLd";
 import { SiteFooter } from "@/components/sections/SiteFooter";
 import { Motion } from "@/components/motion/Motion";
+import { ShareButton } from "@/components/ShareButton";
 
 export async function generateStaticParams() {
   return events.map((e) => ({ slug: e.slug }));
@@ -143,6 +144,10 @@ export default async function EventPage({ params }: PageProps<"/events/[slug]">)
                     Add to calendar
                   </a>
                 ) : null}
+                <ShareButton
+                  title={`${site.name} ${event.label}: ${event.display.title}`}
+                  className="t-label link-draw cursor-pointer border-0 bg-transparent py-2 text-[color:var(--paper-2)] hover:text-[color:var(--color-paper)]"
+                />
               </div>
             </div>
 

@@ -81,6 +81,7 @@ export function SiteFooter() {
         <div className="mt-6 flex flex-col gap-3 border-t border-[color:var(--paper-line)] pt-6 sm:flex-row sm:items-center sm:justify-between">
           <p className="t-small text-[color:var(--paper-3)]">
             © {site.name}. Free evening talks on medicine in {site.city}.
+            <span className="block sm:inline sm:before:content-['_·_']">Set in Mona Sans and Source Serif 4. The light is drawn live in your browser.</span>
           </p>
           <a href="#top" className="t-label link-draw self-start text-[color:var(--paper-2)] sm:self-auto">
             Back to top ↑
