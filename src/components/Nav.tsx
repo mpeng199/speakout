@@ -27,6 +27,8 @@ export function Nav({ name, links, cta }: { name: string; links: NavLink[]; cta:
     dialogRef.current?.showModal();
     setOpen(true);
     document.documentElement.classList.add("menu-open");
+    // Pause smooth scrolling so the page behind the menu stays put.
+    window.dispatchEvent(new CustomEvent("speakout:menu", { detail: true }));
   }, []);
 
   useEffect(() => {
@@ -35,6 +37,7 @@ export function Nav({ name, links, cta }: { name: string; links: NavLink[]; cta:
     const onClose = () => {
       setOpen(false);
       document.documentElement.classList.remove("menu-open");
+      window.dispatchEvent(new CustomEvent("speakout:menu", { detail: false }));
       buttonRef.current?.focus({ preventScroll: true });
     };
     const onCancel = (e: Event) => {

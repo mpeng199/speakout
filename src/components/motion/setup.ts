@@ -16,9 +16,15 @@ export function getLenis() {
   return lenis;
 }
 
+const onMenu = (e: Event) => {
+  if ((e as CustomEvent<boolean>).detail) lenis?.stop();
+  else lenis?.start();
+};
+
 function startLenis() {
   if (lenis) return lenis;
   lenis = new Lenis({ lerp: 0.12, wheelMultiplier: 1, smoothWheel: true, autoRaf: false });
+  window.addEventListener("speakout:menu", onMenu);
   lenis.on("scroll", ScrollTrigger.update);
   tickerFn = (time: number) => lenis?.raf(time * 1000);
   gsap.ticker.add(tickerFn);
@@ -27,6 +33,7 @@ function startLenis() {
 }
 
 export function teardownLenis() {
+  window.removeEventListener("speakout:menu", onMenu);
   if (tickerFn) gsap.ticker.remove(tickerFn);
   lenis?.destroy();
   lenis = null;
@@ -161,6 +168,7 @@ function charReveals() {
       SplitText.create(el, {
         type: "chars",
         mask: "chars",
+        charsClass: "split-char",
         aria: "none",
         autoSplit: true,
         onSplit(self) {

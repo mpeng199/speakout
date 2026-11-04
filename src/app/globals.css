@@ -105,6 +105,15 @@ html.lenis body {
   font-kerning: normal;
 }
 
+/* Optical margin alignment: large type is nudged left so its stems line up
+   with the text below (side bearings grow with the type size). */
+.t-hero {
+  margin-inline-start: -0.055em;
+}
+.t-d1 {
+  margin-inline-start: -0.04em;
+}
+
 .t-hero {
   font-weight: 500;
   font-stretch: 112%;
@@ -477,6 +486,15 @@ html.lenis body {
    it right before animating, and never when reduced motion is on. */
 .split-line {
   will-change: transform;
+}
+/* Line masks get room for descenders (g, y, p) without changing the line spacing. */
+.split-line-mask {
+  padding-bottom: 0.16em;
+  margin-bottom: -0.16em;
+}
+.split-char-mask {
+  padding-bottom: 0.06em;
+  margin-bottom: -0.06em;
 }
 
 /* ───────────────────────────── Amber light (WebGL) ───────────────────────────── */
@@ -1212,4 +1230,9 @@ main [id] {
 .hero-shade,
 .evening-shade {
   background-image: var(--shade);
+}
+
+/* The page behind the open menu does not scroll. */
+html.menu-open {
+  overflow: hidden;
 }
