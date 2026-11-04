@@ -268,6 +268,9 @@ export const copy = {
     label: "Upcoming",
     title: "Upcoming evenings",
     note: "More dates are on the way. Join the mailing list to hear about them first.",
+    /** Shown when no upcoming evening is listed. */
+    none: "The next evening will be announced soon.",
+    pastTitle: "Past evenings",
   },
 
   speakers: {

@@ -58,7 +58,7 @@ export function EventCard({ event, headingLevel = "h3" }: { event: EventView; he
 }
 
 export async function Events() {
-  const { upcoming } = await getSchedule();
+  const { upcoming, past } = await getSchedule();
 
   return (
     <section id="events" aria-labelledby="events-title" data-nav-theme="night" className="panel panel-dark">
@@ -71,15 +71,21 @@ export async function Events() {
         </div>
 
         <div className="grid-12 mt-[clamp(3rem,6vw,5rem)] items-start gap-y-10">
-          <ul className="col-span-12 grid gap-[var(--gutter)] lg:col-span-7" aria-label="Upcoming events">
-            {upcoming.map((e) => (
-              // With a single evening announced, the card sits on a short stack of
-              // blank labels: more dates are coming.
-              <li key={e.slug} className={upcoming.length === 1 ? "label-stack" : undefined}>
-                <EventCard event={e} />
-              </li>
-            ))}
-          </ul>
+          {upcoming.length ? (
+            <ul className="col-span-12 grid gap-[var(--gutter)] lg:col-span-7" aria-label="Upcoming events">
+              {upcoming.map((e) => (
+                // With a single evening announced, the card sits on a short stack of
+                // blank labels: more dates are coming.
+                <li key={e.slug} className={upcoming.length === 1 ? "label-stack" : undefined}>
+                  <EventCard event={e} />
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="t-d2 balance col-span-12 lg:col-span-7" data-reveal="lines">
+              {copy.events.none}
+            </p>
+          )}
           <div className="col-span-12 lg:col-span-4 lg:col-start-9 lg:pt-4">
             <p className="t-lead text-[color:var(--paper-2)]" data-reveal="fade">
               {copy.events.note}
@@ -89,6 +95,25 @@ export async function Events() {
             </a>
           </div>
         </div>
+
+        {past.length ? (
+          <div className="mt-[clamp(4rem,8vw,7rem)]">
+            <h3 className="t-label text-[color:var(--paper-3)]">{copy.events.pastTitle}</h3>
+            <ol className="past-list mt-6" aria-label="Past evenings">
+              {past.map((e) => (
+                <li key={e.slug}>
+                  <Link href={`/events/${e.slug}`} className="past-row grid-12 items-baseline gap-y-2">
+                    <span className="t-label tabular col-span-12 text-[color:var(--paper-3)] md:col-span-2">{e.label}</span>
+                    <span className="t-d3 col-span-12 md:col-span-7">{e.display.title}</span>
+                    <span className="t-small tabular col-span-12 text-[color:var(--paper-2)] md:col-span-3 md:text-right">
+                      {e.display.dateMedium}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ol>
+          </div>
+        ) : null}
       </div>
     </section>
   );

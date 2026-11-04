@@ -1324,3 +1324,23 @@ html.menu-open {
   background-image: var(--grain-paper);
   background-size: 180px 180px;
 }
+
+/* Past evenings: quiet rows under the upcoming ones */
+.past-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--paper-line);
+}
+.past-list > li {
+  border-bottom: 1px solid var(--paper-line);
+}
+.past-row {
+  padding-block: 1.1rem;
+  transition: color 0.35s var(--ease-out);
+}
+@media (hover: hover) {
+  .past-row:hover .t-d3 {
+    color: var(--color-amber);
+  }
+}

@@ -5,17 +5,22 @@ import { Label } from "@/components/ui/Label";
 import { Ph } from "@/components/ui/Text";
 
 export async function Hero() {
-  const { next, upcoming } = await getSchedule();
+  const { next, upcoming, past } = await getSchedule();
   const featured = next ?? upcoming[0] ?? null;
+  // With nothing upcoming, the label points at the next number in the series.
+  const nextNumber = Math.max(0, ...upcoming.map((e) => e.number), ...past.map((e) => e.number)) + 1;
+  const isFirst = !past.length && (!featured || featured.number === 1);
 
   const when = next ? (
     <>
       {next.display.dateShort}, {next.display.time}
     </>
-  ) : (
+  ) : isFirst ? (
     <>
       First event: <Ph value={site.firstEventLabel} />
     </>
+  ) : (
+    "To be announced"
   );
 
   return (
@@ -69,8 +74,8 @@ export async function Hero() {
               className="hero-label intro-fade"
               reveal="intro"
               left={site.name}
-              right={featured ? featured.label : "No. 001"}
-              title={featured ? featured.display.title : "First evening"}
+              right={featured ? featured.label : `No. ${String(nextNumber).padStart(3, "0")}`}
+              title={featured ? featured.display.title : isFirst ? "First evening" : "Next evening"}
               rows={[
                 { term: "When", detail: when },
                 {
