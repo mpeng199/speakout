@@ -73,6 +73,13 @@ export function AmberField({ variant = "hero", id, className = "" }: { variant?:
     let u: Record<string, WebGLUniformLocation | null> = {};
     let program: WebGLProgram | null = null;
     let ext: { COMPLETION_STATUS_KHR: number } | null = null;
+    // Adaptive quality: where the GPU can't keep up, the canvas first gets smaller, then the
+    // still light takes over. A frame-rate cap (battery saver, 30 Hz) is not counted as slow.
+    let quality = 1;
+    let frozen = false;
+    let warmup = 45;
+    const gaps: number[] = [];
+    const slowGap = Math.max(frameGap * 1.6, 40);
 
     /*
      * A pre-rendered frame of the light, drawn into a 2D canvas (never an LCP
@@ -121,7 +128,7 @@ export function AmberField({ variant = "hero", id, className = "" }: { variant?:
 
     const resize = () => {
       if (!gl) return;
-      const dpr = Math.min(window.devicePixelRatio || 1, 2) * (coarse ? 0.5 : 0.6);
+      const dpr = Math.min(window.devicePixelRatio || 1, 2) * (coarse ? 0.5 : 0.6) * quality;
       const w = Math.max(1, Math.round(canvas.clientWidth * dpr));
       const h = Math.max(1, Math.round(canvas.clientHeight * dpr));
       if (canvas.width !== w || canvas.height !== h) {
@@ -137,8 +144,46 @@ export function AmberField({ variant = "hero", id, className = "" }: { variant?:
       }
     };
 
+    /** The still light takes over from the live one (cross-fade), and the GPU is let go. */
+    const fallBack = () => {
+      frozen = true;
+      cancelAnimationFrame(raf);
+      window.removeEventListener("pointermove", onPointer);
+      wrap.dataset.light = "still";
+      photoWanted = false;
+      loadPhoto(); // the evening has no photo: its vector still follows the lighting cues
+      canvas.classList.remove("is-ready");
+      window.setTimeout(() => {
+        if (disposed) return;
+        gl?.getExtension("WEBGL_lose_context")?.loseContext();
+        gl = null;
+        program = null;
+      }, 1400);
+    };
+
+    /** Median time between drawn frames, over steady stretches only (not warm-up or resumes). */
+    const watch = (gap: number) => {
+      if (gap > 250) return;
+      if (warmup > 0) {
+        warmup--;
+        return;
+      }
+      gaps.push(gap);
+      if (gaps.length < 60) return;
+      const median = gaps.sort((a, b) => a - b)[30];
+      gaps.length = 0;
+      if (median < slowGap) return;
+      if (quality > 0.5) {
+        quality *= 0.7; // 1 → 0.7 → 0.49 of the base resolution, then the still
+        wrap.dataset.light = `live ${quality.toFixed(2)}`;
+        warmup = 15;
+        return;
+      }
+      fallBack();
+    };
+
     const draw = (now: number) => {
-      if (disposed || !gl || !program) return;
+      if (disposed || frozen || !gl || !program) return;
       // Fully covered by the next section (sticky hero): idle cheaply until uncovered.
       if (wrap.closest("[data-covered]")) {
         raf = window.setTimeout(() => requestAnimationFrame(draw), 250) as unknown as number;
@@ -165,7 +210,9 @@ export function AmberField({ variant = "hero", id, className = "" }: { variant?:
         raf = requestAnimationFrame(draw);
         return;
       }
+      if (!reduce && !firstFrame) watch(now - lastDraw);
       lastDraw = now;
+      if (frozen) return;
       resize();
       mouse.x += (mouse.tx - mouse.x) * 0.045;
       mouse.y += (mouse.ty - mouse.y) * 0.045;
@@ -186,7 +233,7 @@ export function AmberField({ variant = "hero", id, className = "" }: { variant?:
         canvas.classList.add("is-ready");
         // Once the live light has faded in, free the still underneath it.
         window.setTimeout(() => {
-          if (disposed || !photo) return;
+          if (disposed || frozen || !photo) return;
           photo.width = 0;
           photo.height = 0;
           photo.classList.remove("is-ready");
@@ -194,7 +241,7 @@ export function AmberField({ variant = "hero", id, className = "" }: { variant?:
           bitmap = null;
         }, 1600);
       }
-      if (!reduce && visible && !document.hidden) raf = requestAnimationFrame(draw);
+      if (!reduce && !frozen && visible && !document.hidden) raf = requestAnimationFrame(draw);
     };
 
     const start = () => {
