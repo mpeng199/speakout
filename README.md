@@ -37,7 +37,7 @@ npm run placeholders
 },
 ```
 
-Each event gets its own page, a share image and, once it has a date, an "Add to calendar" file.
+Each event gets its own page and a share image. Once it has a date, the page also offers "Add to calendar" links for Google Calendar and for Apple, Outlook and others (an .ics file).
 
 ## Mailing list
 
