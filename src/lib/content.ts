@@ -129,6 +129,8 @@ export type EventView = SeriesEvent & {
     dateShort: string;
     time: string;
     doors: string | null;
+    /** When the evening finishes, e.g. "8:15 pm" */
+    end: string | null;
     venue: string;
     address: string | null;
     speaker: string;
@@ -157,6 +159,7 @@ export function toEventView(e: SeriesEvent): EventView {
       dateShort: startTs !== null ? formatDateShort(startTs) : "TBA",
       time: startTs !== null ? formatTime(startTs) : "Time TBA",
       doors: doorsTs !== null ? formatTime(doorsTs) : null,
+      end: endTs !== null ? formatTime(endTs) : null,
       venue: e.venue?.name ?? "Venue TBA",
       address: e.venue?.address ?? null,
       speaker: speaker ? speaker.name : "To be announced",

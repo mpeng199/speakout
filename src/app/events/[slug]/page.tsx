@@ -42,6 +42,10 @@ export default async function EventPage({ params }: PageProps<"/events/[slug]">)
   const { past } = await getSchedule();
   const isPast = past.some((p) => p.slug === event.slug);
   const googleCalendar = googleCalendarUrl(event);
+  // Once the evening has a time, each step of "How the evening runs" shows when it happens.
+  const times: (string | null)[] = event.isTba
+    ? []
+    : [event.display.doors ? `Doors ${event.display.doors}` : null, event.display.time, event.display.end ? `Until ${event.display.end}` : null];
   const status = event.isTba ? "TBA" : isPast ? "Past event" : "Upcoming";
   const speaker = event.speaker;
 
@@ -259,7 +263,10 @@ export default async function EventPage({ params }: PageProps<"/events/[slug]">)
           <ol className="mt-12 grid gap-x-[var(--gutter)] gap-y-10 lg:grid-cols-3 lg:gap-y-0" data-reveal="stagger">
             {copy.evening.steps.map((s, i) => (
               <li key={s.title} className="border-t border-[color:var(--paper-line)] pt-6 lg:row-span-3 lg:grid lg:grid-rows-subgrid">
-                <p className="t-label tabular text-[color:var(--color-amber)]">{String(i + 1).padStart(2, "0")}</p>
+                <p className="t-label tabular text-[color:var(--color-amber)]">
+                  {String(i + 1).padStart(2, "0")}
+                  {times[i] ? <span className="text-[color:var(--paper-2)]"> · {times[i]}</span> : null}
+                </p>
                 <h3 className="t-d2 mt-4">{s.title}</h3>
                 <p className="t-body mt-4 max-w-[34ch] text-[color:var(--paper-2)]">{s.text}</p>
               </li>
