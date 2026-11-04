@@ -458,7 +458,9 @@ function fitText() {
   };
   fit();
   document.fonts?.ready.then(fit);
-  const ro = new ResizeObserver(fit);
+  // Resizing the text changes the observed parent's height; doing it inside the callback makes
+  // Safari report "ResizeObserver loop completed with undelivered notifications".
+  const ro = new ResizeObserver(() => requestAnimationFrame(fit));
   els.forEach((el) => el.parentElement && ro.observe(el.parentElement));
   return () => ro.disconnect();
 }
