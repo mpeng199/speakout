@@ -20,6 +20,8 @@ export function eventSchema(e: EventView) {
     eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
     isAccessibleForFree: true,
     url,
+    // The share image drawn for this evening (recommended for event results).
+    image: [`${url}/opengraph-image`],
     location: {
       "@type": "Place",
       name: e.venue.name,
