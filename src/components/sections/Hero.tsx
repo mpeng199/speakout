@@ -4,6 +4,7 @@ import { AmberField } from "@/components/visuals/AmberField";
 import { Label } from "@/components/ui/Label";
 import { Ph } from "@/components/ui/Text";
 import { RelativeDay } from "@/components/RelativeDay";
+import Link from "next/link";
 
 export async function Hero() {
   const { next, upcoming, past } = await getSchedule();
@@ -77,7 +78,18 @@ export async function Hero() {
               reveal="intro"
               left={site.name}
               right={featured ? featured.label : `No. ${String(nextNumber).padStart(3, "0")}`}
-              title={featured ? featured.display.title : isFirst ? "First evening" : "Next evening"}
+              title={
+                featured ? (
+                  // The whole card opens the evening's page (the link is stretched over it).
+                  <Link href={`/events/${featured.slug}`} className="card-link">
+                    {featured.display.title}
+                  </Link>
+                ) : isFirst ? (
+                  "First evening"
+                ) : (
+                  "Next evening"
+                )
+              }
               rows={[
                 { term: "When", detail: when },
                 {
@@ -87,7 +99,18 @@ export async function Hero() {
                 { term: "Format", detail: "10–15 minute talk, then open Q&A" },
                 { term: "Admission", detail: "Free. Everyone welcome." },
               ]}
-              footer="No slides. No science background needed."
+              footer={
+                featured ? (
+                  <span className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
+                    <span>No slides. No science background needed.</span>
+                    <span className="t-label link-draw text-[color:var(--color-night)]" aria-hidden="true">
+                      Details →
+                    </span>
+                  </span>
+                ) : (
+                  "No slides. No science background needed."
+                )
+              }
             />
           </div>
         </div>
