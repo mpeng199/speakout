@@ -1,4 +1,6 @@
-import { copy, topics } from "@/content/series";
+import { copy, site, topics } from "@/content/series";
+import { mailto } from "@/lib/content";
+import { Ph } from "@/components/ui/Text";
 
 export function Topics() {
   return (
@@ -31,6 +33,19 @@ export function Topics() {
             </li>
           ))}
         </ul>
+        <p className="t-body mt-10 text-[color:var(--night-2)]">
+          Have a question you’d like answered?{" "}
+          {mailto(site.contactEmail, "A topic for Speakout") ? (
+            <a href={mailto(site.contactEmail, "A topic for Speakout")!} className="link text-[color:var(--color-night)]">
+              Suggest a topic
+            </a>
+          ) : (
+            <>
+              Suggest a topic at <Ph value={site.contactEmail} />
+            </>
+          )}
+          .
+        </p>
       </div>
     </section>
   );
