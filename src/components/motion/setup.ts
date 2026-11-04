@@ -59,11 +59,20 @@ function smoothAnchors(reduce: boolean) {
       target.focus({ preventScroll: true });
     };
     history.pushState(null, "", url.hash);
-    if (lenis && !reduce) {
-      lenis.scrollTo(target, { offset: url.hash === "#top" ? 0 : -navHeight() + 1, duration: 1.2, onComplete: focusTarget });
+    const go = () => {
+      if (lenis && !reduce) {
+        lenis.scrollTo(target, { offset: url.hash === "#top" ? 0 : -navHeight() + 1, duration: 1.2, onComplete: focusTarget });
+      } else {
+        window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - navHeight(), behavior: "auto" });
+        focusTarget();
+      }
+    };
+    // The menu pauses smooth scrolling while it is open (Lenis ignores scrollTo when stopped),
+    // so a menu link scrolls once the menu has closed and smooth scrolling is back.
+    if (document.documentElement.classList.contains("menu-open")) {
+      window.addEventListener("speakout:menu", () => requestAnimationFrame(go), { once: true });
     } else {
-      window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - navHeight(), behavior: "auto" });
-      focusTarget();
+      go();
     }
   };
   document.addEventListener("click", onClick);
