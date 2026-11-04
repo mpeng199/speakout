@@ -54,7 +54,7 @@ npm run build && npm start
 ## Notes on the build
 
 - **Fonts** are self-hosted, trimmed builds of Mona Sans and Source Serif 4 with `font-display: swap` (see `src/fonts/README.md`).
-- **The amber light** is a small WebGL shader (`src/components/visuals`). It starts after the first scroll, touch or pointer move (or after a few seconds), so it never slows the first load. A vector still shows until then, on devices without a GPU, and with reduced motion.
+- **The amber light** is a small WebGL shader (`src/components/visuals`). It starts after the first scroll, touch or pointer move (or after a few seconds), so it never slows the first load. A soft vector glow shows until then. With reduced motion, or on devices without a GPU, a pre-rendered frame of the light (`public/amber/light.webp`) is shown instead.
 - **Motion** loads after the page is interactive (`src/components/motion`). All content is in the HTML and readable without JavaScript. With `prefers-reduced-motion`, smooth scrolling, reveals, parallax, magnetic buttons and the pinned sequence are all switched off.
 - **Upcoming vs past events** are worked out from the current date and refreshed every hour, so the page stays static.
 

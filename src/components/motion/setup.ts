@@ -89,22 +89,23 @@ function navTheme(reduce: boolean) {
       }),
     );
   });
-  // Hide on scroll down, show on scroll up.
-  if (!reduce) {
-    triggers.push(
-      ScrollTrigger.create({
-        start: 0,
-        end: "max",
-        onUpdate: (self) => {
-          const y = self.scroll();
-          const menuOpen = document.documentElement.classList.contains("menu-open");
-          const focusInside = nav.contains(document.activeElement);
-          nav.classList.toggle("is-hidden", !menuOpen && !focusInside && self.direction === 1 && y > window.innerHeight * 0.6);
-          nav.classList.toggle("is-scrolled", y > 8);
-        },
-      }),
-    );
-  }
+  // The bar gets its background once the page has scrolled (always), and hides
+  // on scroll down / shows on scroll up (motion only).
+  const update = (y: number, direction: number) => {
+    nav.classList.toggle("is-scrolled", y > 8);
+    if (reduce) return;
+    const menuOpen = document.documentElement.classList.contains("menu-open");
+    const focusInside = nav.contains(document.activeElement);
+    nav.classList.toggle("is-hidden", !menuOpen && !focusInside && direction === 1 && y > window.innerHeight * 0.6);
+  };
+  update(window.scrollY, 0);
+  triggers.push(
+    ScrollTrigger.create({
+      start: 0,
+      end: "max",
+      onUpdate: (self) => update(self.scroll(), self.direction),
+    }),
+  );
   return () => triggers.forEach((t) => t.kill());
 }
 
