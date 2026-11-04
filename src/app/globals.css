@@ -1480,6 +1480,27 @@ html.menu-open {
   pointer-events: none;
 }
 
+/* Reduced transparency (a system setting on macOS, iOS and Windows): solid bars, no see-through blur. */
+@media (prefers-reduced-transparency: reduce) {
+  .site-nav,
+  [data-motion] .site-nav.is-scrolled[data-theme="night"] {
+    background: var(--color-night);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  [data-motion] .site-nav.is-scrolled[data-theme="paper"] {
+    background: var(--color-paper);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  [data-motion] .site-nav:not(.is-scrolled) {
+    background: transparent;
+  }
+  .site-menu::backdrop {
+    background: var(--color-night);
+  }
+}
+
 /* ───────────────────────────── Print ─────────────────────────────
    Browsers drop backgrounds when printing, so the light text of the dark panels would all but
    vanish. On paper the palette is black on white, the light and the page chrome are left out,
