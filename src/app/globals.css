@@ -1336,6 +1336,11 @@ html.menu-open {
   .hero h1 {
     margin-top: 1rem;
   }
+  /* The three-line headline sets the hero's height; on a 720px-tall window it pushed the
+     button below the fold. Capped by height, it keeps its proportion to the window. */
+  .hero .t-hero {
+    font-size: min(clamp(2.25rem, 0.55rem + 9.6vw, 8.5rem), 15vh);
+  }
   .hero .hero-label .label-row {
     padding-block: 0.4rem;
   }
