@@ -20,7 +20,8 @@
 
 :root {
   /* Layout */
-  --margin: clamp(1rem, 3.4vw, 4rem);
+  /* Never narrower than the sensor housing / rounded corners (iPhone in landscape). */
+  --margin: max(clamp(1rem, 3.4vw, 4rem), env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px));
   --gutter: clamp(0.75rem, 1.6vw, 1.75rem);
   --maxw: 110rem;
   --section-y: clamp(6rem, 11vw, 12rem);
