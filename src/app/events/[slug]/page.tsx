@@ -174,7 +174,7 @@ export default async function EventPage({ params }: PageProps<"/events/[slug]">)
               ) : null}
             </div>
 
-            <div className="col-span-12 md:col-span-8 lg:col-span-4 lg:col-start-9">
+            <div className="col-span-12 md:col-span-8 lg:col-span-5 lg:col-start-8 xl:col-span-4 xl:col-start-9">
               <ViewTransition name={`label-${event.slug}`} share="morph" default="none">
                 <Label className="hero-label vt-label intro-fade" reveal="intro" left={site.name} right={event.label} title="Details" rows={rows} footer="No slides. No science background needed." />
               </ViewTransition>

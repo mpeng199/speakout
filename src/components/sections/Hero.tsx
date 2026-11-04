@@ -72,7 +72,7 @@ export async function Hero() {
             </div>
           </div>
 
-          <div className="col-span-12 md:col-span-6 md:col-start-7 lg:col-span-4 lg:col-start-9">
+          <div className="col-span-12 md:col-span-6 md:col-start-7 lg:col-span-5 lg:col-start-8 xl:col-span-4 xl:col-start-9">
             <Label
               className="hero-label intro-fade"
               reveal="intro"
