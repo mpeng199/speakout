@@ -11,6 +11,7 @@ import { EventJsonLd } from "@/components/JsonLd";
 import { SiteFooter } from "@/components/sections/SiteFooter";
 import { Motion } from "@/components/motion/Motion";
 import { ShareButton } from "@/components/ShareButton";
+import { RelativeDay } from "@/components/RelativeDay";
 
 export async function generateStaticParams() {
   return events.map((e) => ({ slug: e.slug }));
@@ -44,7 +45,17 @@ export default async function EventPage({ params }: PageProps<"/events/[slug]">)
   const speaker = event.speaker;
 
   const rows = [
-    { term: "When", detail: event.isTba ? "Date TBA" : `${event.display.date}` },
+    {
+      term: "When",
+      detail: event.isTba ? (
+        "Date TBA"
+      ) : (
+        <>
+          {event.display.date}
+          {event.startTs !== null && !isPast ? <RelativeDay ts={event.startTs} /> : null}
+        </>
+      ),
+    },
     { term: "Time", detail: event.isTba ? "Time TBA" : `${event.display.time}${event.display.doors ? `, doors ${event.display.doors}` : ""}` },
     {
       term: "Where",

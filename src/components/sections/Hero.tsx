@@ -3,6 +3,7 @@ import { getSchedule } from "@/lib/content";
 import { AmberField } from "@/components/visuals/AmberField";
 import { Label } from "@/components/ui/Label";
 import { Ph } from "@/components/ui/Text";
+import { RelativeDay } from "@/components/RelativeDay";
 
 export async function Hero() {
   const { next, upcoming, past } = await getSchedule();
@@ -14,6 +15,7 @@ export async function Hero() {
   const when = next ? (
     <>
       {next.display.dateShort}, {next.display.time}
+      {next.startTs !== null ? <RelativeDay ts={next.startTs} /> : null}
     </>
   ) : isFirst ? (
     <>

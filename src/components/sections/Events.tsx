@@ -3,10 +3,21 @@ import { ViewTransition } from "react";
 import { copy, site } from "@/content/series";
 import { getSchedule, type EventView } from "@/lib/content";
 import { Label } from "@/components/ui/Label";
+import { RelativeDay } from "@/components/RelativeDay";
 
 export function EventCard({ event, headingLevel = "h3" }: { event: EventView; headingLevel?: "h2" | "h3" }) {
   const rows = [
-    { term: "When", detail: event.isTba ? "Date TBA" : `${event.display.dateMedium} · ${event.display.time}` },
+    {
+      term: "When",
+      detail: event.isTba ? (
+        "Date TBA"
+      ) : (
+        <>
+          {event.display.dateMedium} · {event.display.time}
+          {event.startTs !== null ? <RelativeDay ts={event.startTs} /> : null}
+        </>
+      ),
+    },
     { term: "Where", detail: event.venue ? event.venue.name : `Venue TBA, ${site.city}` },
     { term: "Speaker", detail: event.display.speaker },
     { term: "Topic", detail: event.display.topic },
