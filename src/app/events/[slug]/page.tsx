@@ -86,7 +86,7 @@ export default async function EventPage({ params }: PageProps<"/events/[slug]">)
         id="top"
         aria-labelledby="event-title"
         data-nav-theme="hero"
-        className="intro relative isolate flex min-h-[min(100svh,58rem)] flex-col overflow-hidden bg-[color:var(--color-night)]"
+        className="hero intro relative isolate flex min-h-[min(100svh,58rem)] flex-col overflow-hidden bg-[color:var(--color-night)]"
       >
         <div className="absolute inset-0 -z-10" data-parallax-out="12">
           <AmberField variant="page" />
