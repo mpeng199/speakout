@@ -18,7 +18,7 @@ export async function Hero() {
       {next.display.dateShort}, {next.display.time}
       {next.startTs !== null ? <RelativeDay ts={next.startTs} /> : null}
     </>
-  ) : isFirst ? (
+  ) : isFirst && site.firstEventLabel.trim() ? (
     <>
       First event: <Ph value={site.firstEventLabel} />
     </>
