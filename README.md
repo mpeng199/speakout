@@ -72,3 +72,22 @@ Fill these in `src/content/series.ts` (run `npm run placeholders` to see what is
 - [ ] Speakers: add each one with `confirmed: true` only after they agree
 
 Also review the wording that makes a promise on your behalf: the privacy line under the signup form ("about once a month"), the FAQ answers, and the researcher terms ("We find it, book it and set it up", "We handle promotion, RSVPs and the evening itself").
+
+## Deploying a preview
+
+Vercel builds this as a standard Next.js app. No environment variables are needed.
+
+**From your machine (simplest, preview only):**
+
+```bash
+npx vercel@latest login
+npx vercel@latest deploy
+```
+
+Run it from a checkout of this branch. `vercel deploy` without `--prod` creates a preview deployment and prints its URL. Nothing goes to production.
+
+**From the Vercel dashboard (Git, deploys on every push):** Add New → Project → import `mpeng199/speakout`. Vercel treats the repository's default branch as production, so make `main` the default branch first if you only want previews from feature branches.
+
+**From Claude:** the Claude Vercel connector needs permission to create projects. Reconnect it at claude.ai/customize/connectors and grant access to the whole team. The connector used in the first build session was refused with "You don't have permission to create a project".
+
+After deploying, check the live URL with [PageSpeed Insights](https://pagespeed.web.dev/). Preview deployments may sit behind Vercel Authentication; turn that off for the preview, or share a protection-bypass link, if other people need to open it.
