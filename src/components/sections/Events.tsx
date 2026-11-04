@@ -14,7 +14,7 @@ export function EventCard({ event, headingLevel = "h3" }: { event: EventView; he
       ) : (
         <>
           {event.display.dateMedium} · {event.display.time}
-          {event.startTs !== null ? <RelativeDay ts={event.startTs} /> : null}
+          {event.startTs !== null ? <RelativeDay ts={event.startTs} end={event.endTs} /> : null}
         </>
       ),
     },

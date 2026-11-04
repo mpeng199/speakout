@@ -17,7 +17,7 @@ export async function Hero() {
   const when = next ? (
     <>
       {next.display.dateShort}, {next.display.time}
-      {next.startTs !== null ? <RelativeDay ts={next.startTs} /> : null}
+      {next.startTs !== null ? <RelativeDay ts={next.startTs} end={next.endTs} /> : null}
     </>
   ) : isFirst && site.firstEventLabel.trim() ? (
     <>

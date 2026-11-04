@@ -57,7 +57,7 @@ export default async function EventPage({ params }: PageProps<"/events/[slug]">)
       ) : (
         <>
           {event.display.date}
-          {event.startTs !== null && !isPast ? <RelativeDay ts={event.startTs} /> : null}
+          {event.startTs !== null && !isPast ? <RelativeDay ts={event.startTs} end={event.endTs} /> : null}
         </>
       ),
     },
