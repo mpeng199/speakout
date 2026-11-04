@@ -193,10 +193,9 @@ html.lenis body {
 .balance {
   text-wrap: balance;
 }
-/* No lone words on the last line of running text */
-.t-lead,
-.t-body,
-.t-small {
+/* No lone words on the last line of lead paragraphs (kept narrow in scope:
+   "pretty" line breaking costs layout time). */
+.t-lead {
   text-wrap: pretty;
 }
 .pretty {

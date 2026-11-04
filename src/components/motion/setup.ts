@@ -513,13 +513,12 @@ export function setupMotion({ reduce }: { reduce: boolean }) {
   })();
 
 
+  // ScrollTrigger refreshes itself on load and resize; only add one for late fonts.
   const refresh = () => ScrollTrigger.refresh();
-  document.fonts?.ready.then(refresh);
-  window.addEventListener("load", refresh, { once: true });
+  if (document.fonts && document.fonts.status !== "loaded") document.fonts.ready.then(refresh);
 
   return () => {
     cancelled = true;
-    window.removeEventListener("load", refresh);
     cleanups.reverse().forEach((fn) => fn());
     ScrollTrigger.getAll().forEach((t) => t.kill());
   };
