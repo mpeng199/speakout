@@ -54,7 +54,9 @@ npm run build && npm start
 ## Notes on the build
 
 - **Fonts** are self-hosted, trimmed builds of Mona Sans and Source Serif 4 with `font-display: swap` (see `src/fonts/README.md`).
-- **The amber light** is a small WebGL shader (`src/components/visuals`). It starts after the first scroll, touch or pointer move (or after a few seconds), so it never slows the first load. A soft vector glow shows until then. With reduced motion, or on devices without a GPU, a pre-rendered frame of the light (`public/amber/light.webp`) is shown instead.
+- **The amber light** is a small WebGL shader (`src/components/visuals`). It starts after the first scroll, touch or pointer move (or after a few seconds), so it never slows the first load; a pre-rendered frame of the light (`public/amber/light.webp`) shows until then. With reduced motion, or on devices without a GPU, that frame stays. If a GPU can't keep up, the light lowers its resolution and, if that isn't enough, hands back to the frame.
+- **Share images** for the home page and each event are drawn at build time from the content, over a frame of the same light (`src/lib/og-light.jpg`), and saved as small JPEGs so link previews show in every app.
+- **Printing** an event page gives a plain two-page flyer (black on white, the RSVP address written out).
 - **Motion** loads after the page is interactive (`src/components/motion`). All content is in the HTML and readable without JavaScript. With `prefers-reduced-motion`, smooth scrolling, reveals, parallax, magnetic buttons and the pinned sequence are all switched off.
 - **Upcoming vs past events** are worked out from the current date and refreshed every hour, so the page stays static.
 
