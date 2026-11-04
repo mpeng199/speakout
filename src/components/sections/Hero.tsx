@@ -44,9 +44,9 @@ export async function Hero() {
           ))}
         </h1>
 
-        <div className="grid-12 mt-auto items-end gap-y-10 pt-12">
+        <div className="hero-bottom grid-12 mt-auto items-end gap-y-10 pt-12">
           <div className="col-span-12 md:col-span-6 lg:col-span-5">
-            <p className="t-lead max-w-[30ch] text-[color:var(--paper-2)] intro-fade" style={{ "--d": 80 } as React.CSSProperties}>
+            <p className="hero-sub t-lead max-w-[30ch] text-[color:var(--paper-2)] intro-fade" style={{ "--d": 80 } as React.CSSProperties}>
               {copy.hero.sub}
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4 intro-fade" style={{ "--d": 160 } as React.CSSProperties}>

@@ -64,7 +64,7 @@ export function Label({
         ))}
       </dl>
       {footer ? (
-        <div {...footProps} className={cx("t-small mt-3 text-[color:var(--night-2)]", footProps.className)}>
+        <div {...footProps} className={cx("label-foot t-small mt-3 text-[color:var(--night-2)]", footProps.className)}>
           {footer}
         </div>
       ) : null}
