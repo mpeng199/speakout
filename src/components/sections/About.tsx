@@ -26,7 +26,12 @@ export function About() {
         <div className="grid-12 mt-[clamp(4rem,8vw,7rem)] gap-y-4 border-t border-[color:var(--night-line)] pt-6">
           <p className="t-label col-span-12 text-[color:var(--night-3)] lg:col-span-2">Run by</p>
           <p className="t-lead col-span-12 lg:col-span-6 lg:col-start-3" data-reveal="fade">
-            <Ph value={site.organizer.name} />, <Ph value={site.organizer.bio} />
+            <Ph value={site.organizer.name} />
+            {site.organizer.bio.trim() ? (
+              <>
+                , <Ph value={site.organizer.bio} />
+              </>
+            ) : null}
           </p>
         </div>
       </div>

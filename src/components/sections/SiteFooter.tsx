@@ -69,7 +69,12 @@ export function SiteFooter() {
           <div className="col-span-12 lg:col-span-5 lg:col-start-8">
             <h3 className="t-label text-[color:var(--paper-3)]">Run by</h3>
             <p className="t-body mt-3">
-              <Ph value={site.organizer.name} />, <Ph value={site.organizer.bio} />
+              <Ph value={site.organizer.name} />
+              {site.organizer.bio.trim() ? (
+                <>
+                  , <Ph value={site.organizer.bio} />
+                </>
+              ) : null}
             </p>
           </div>
         </div>
