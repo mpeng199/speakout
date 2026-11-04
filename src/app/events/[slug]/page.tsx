@@ -4,7 +4,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { ViewTransition } from "react";
 import { copy, events, site } from "@/content/series";
-import { eventBySlug, getSchedule } from "@/lib/content";
+import { eventBySlug, getSchedule, googleCalendarUrl } from "@/lib/content";
 import { AmberField } from "@/components/visuals/AmberField";
 import { Label } from "@/components/ui/Label";
 import { EventJsonLd } from "@/components/JsonLd";
@@ -41,6 +41,7 @@ export default async function EventPage({ params }: PageProps<"/events/[slug]">)
 
   const { past } = await getSchedule();
   const isPast = past.some((p) => p.slug === event.slug);
+  const googleCalendar = googleCalendarUrl(event);
   const status = event.isTba ? "TBA" : isPast ? "Past event" : "Upcoming";
   const speaker = event.speaker;
 
@@ -150,16 +151,23 @@ export default async function EventPage({ params }: PageProps<"/events/[slug]">)
                     </span>
                   </a>
                 )}
-                {!event.isTba && !isPast ? (
-                  <a href={`/events/${event.slug}/calendar.ics`} className="t-label link-draw py-2 text-[color:var(--paper-2)] hover:text-[color:var(--color-paper)]">
-                    Add to calendar
-                  </a>
-                ) : null}
                 <ShareButton
                   title={`${site.name} ${event.label}: ${event.display.title}`}
                   className="t-label link-draw cursor-pointer border-0 bg-transparent py-2 text-[color:var(--paper-2)] hover:text-[color:var(--color-paper)]"
                 />
               </div>
+              {googleCalendar && !isPast ? (
+                <p className="t-label mt-6 flex flex-wrap items-baseline gap-x-5 text-[color:var(--paper-2)] intro-fade" style={{ "--d": 220 } as React.CSSProperties}>
+                  <span className="basis-full pb-1 sm:basis-auto sm:pb-0">Add to calendar:</span>
+                  <a href={googleCalendar} target="_blank" rel="noopener noreferrer" className="link-draw py-2 hover:text-[color:var(--color-paper)]">
+                    Google<span className="sr-only"> Calendar (opens in a new tab)</span>
+                    <span aria-hidden="true"> ↗</span>
+                  </a>
+                  <a href={`/events/${event.slug}/calendar.ics`} className="link-draw py-2 hover:text-[color:var(--color-paper)]">
+                    Apple, Outlook<span className="sr-only"> and other calendars (.ics file)</span>
+                  </a>
+                </p>
+              ) : null}
             </div>
 
             <div className="col-span-12 md:col-span-8 lg:col-span-4 lg:col-start-9">

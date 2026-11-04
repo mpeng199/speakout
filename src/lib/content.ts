@@ -192,6 +192,34 @@ export async function getSchedule() {
   return { upcoming, past, next };
 }
 
+/* ───────────── Calendars ───────────── */
+
+/** UTC in the compact form calendars use: 20261107T230000Z */
+export const calendarStamp = (ts: number) => new Date(ts).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+
+export function calendarDetails(e: EventView) {
+  return {
+    title: `${site.name} ${e.label}: ${e.display.title}`,
+    description: `${e.summary ?? "A free evening talk on medicine, followed by questions from the room."} ${siteUrl()}/events/${e.slug}`,
+    location: e.venue ? `${e.venue.name}, ${e.venue.address}` : site.city,
+  };
+}
+
+/** Opens Google Calendar with the evening filled in (most Android and Gmail users). */
+export function googleCalendarUrl(e: EventView): string | null {
+  if (e.startTs === null || e.endTs === null) return null;
+  const { title, description, location } = calendarDetails(e);
+  const params = new URLSearchParams({
+    action: "TEMPLATE",
+    text: title,
+    dates: `${calendarStamp(e.startTs)}/${calendarStamp(e.endTs)}`,
+    details: description,
+    location,
+    ctz: TIME_ZONE,
+  });
+  return `https://calendar.google.com/calendar/render?${params}`;
+}
+
 export function mailto(address: string, subject?: string): string | null {
   if (!isSet(address)) return null;
   return `mailto:${address}${subject ? `?subject=${encodeURIComponent(subject)}` : ""}`;
