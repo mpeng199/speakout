@@ -216,7 +216,7 @@ export const faq: { question: string; answer: string }[] = [
 export const copy = {
   hero: {
     eyebrow: "Free evening talks on medicine",
-    sub: "A free evening series in New York City. A researcher talks for 15 minutes, without slides. Then the room asks questions.",
+    sub: "A free evening series in New York City. A researcher talks for 10 to 15 minutes, without slides. Then the room asks questions.",
     cta: "Get on the list",
     secondary: "How an evening works",
   },

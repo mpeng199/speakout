@@ -57,3 +57,18 @@ npm run build && npm start
 - **The amber light** is a small WebGL shader (`src/components/visuals`). It starts after the first scroll, touch or pointer move (or after a few seconds), so it never slows the first load. A vector still shows until then, on devices without a GPU, and with reduced motion.
 - **Motion** loads after the page is interactive (`src/components/motion`). All content is in the HTML and readable without JavaScript. With `prefers-reduced-motion`, smooth scrolling, reveals, parallax, magnetic buttons and the pinned sequence are all switched off.
 - **Upcoming vs past events** are worked out from the current date and refreshed every hour, so the page stays static.
+
+## Before launch
+
+Fill these in `src/content/series.ts` (run `npm run placeholders` to see what is left):
+
+- [ ] `site.url`: the live address, used for link previews, the sitemap and calendar files
+- [ ] `site.firstEventLabel`: the month and year of the first evening, shown in the hero until an event has a date
+- [ ] `site.organizer.bio`: one line about the organizer
+- [ ] `site.contactEmail` and `site.speakerEmail`
+- [ ] `site.social`: real links, or `""` to hide one
+- [ ] `site.signup.formspreeFormId`: from your Formspree form
+- [ ] The first event: `title`, `topic`, `summary`, `start`, `doorsOpen`, `venue`, `speakerId`, `rsvpUrl`
+- [ ] Speakers: add each one with `confirmed: true` only after they agree
+
+Also review the wording that makes a promise on your behalf: the privacy line under the signup form ("about once a month"), the FAQ answers, and the researcher terms ("We find it, book it and set it up", "We handle promotion, RSVPs and the evening itself").
