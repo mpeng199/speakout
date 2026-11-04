@@ -35,7 +35,14 @@ export function Researchers() {
                 </span>
               )}
               <p className="t-small text-[color:var(--paper-2)]">
-                or write to <Ph value={site.speakerEmail} />
+                or write to{" "}
+                {href ? (
+                  <a href={href} className="link whitespace-nowrap">
+                    {site.speakerEmail}
+                  </a>
+                ) : (
+                  <Ph value={site.speakerEmail} />
+                )}
               </p>
             </div>
           </div>

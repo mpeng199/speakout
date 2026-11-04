@@ -267,6 +267,8 @@ html.lenis body {
   text-decoration-thickness: 1px;
   text-underline-offset: 0.22em;
   text-decoration-color: currentColor;
+  /* Placeholders are short tokens (an email, a month); they read badly broken in two. */
+  white-space: nowrap;
 }
 
 /* Accessible hiding */

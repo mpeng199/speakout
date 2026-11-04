@@ -1,14 +1,23 @@
 import { copy, faq, site } from "@/content/series";
-import { isPlaceholder, mailto, stripBrackets } from "@/lib/content";
+import { isPlaceholder, stripBrackets } from "@/lib/content";
 
-/** Turns placeholder tokens inside a sentence, like [hello@…], into dashed-underline spans. */
+const EMAIL = /^[\w.+-]+@[\w-]+(?:\.[\w-]+)+$/;
+
+/**
+ * Turns placeholder tokens inside a sentence, like [hello@…], into dashed-underline spans,
+ * and real email addresses into links that never break across lines.
+ */
 function withPlaceholders(text: string) {
-  const parts = text.split(/(\[[^\]]+\])/g);
+  const parts = text.split(/(\[[^\]]+\]|[\w.+-]+@[\w-]+(?:\.[\w-]+)+)/g);
   return parts.map((part, i) =>
     isPlaceholder(part) ? (
       <span key={i} className="ph" title="Placeholder: edit src/content/series.ts">
         {stripBrackets(part)}
       </span>
+    ) : EMAIL.test(part) ? (
+      <a key={i} href={`mailto:${part}`} className="link whitespace-nowrap text-[color:var(--color-night)]">
+        {part}
+      </a>
     ) : (
       <span key={i}>{part}</span>
     ),
@@ -44,13 +53,7 @@ export function Faq() {
             </ul>
             <p className="t-body mt-8 text-[color:var(--night-2)]">
               Something else?{" "}
-              {mailto(site.contactEmail) ? (
-                <a href={mailto(site.contactEmail)!} className="link text-[color:var(--color-night)]">
-                  Write to {site.contactEmail}
-                </a>
-              ) : (
-                <>Write to {withPlaceholders(site.contactEmail)}</>
-              )}
+              Write to {withPlaceholders(site.contactEmail)}
               .
             </p>
           </div>
