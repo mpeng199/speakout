@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/Label";
 import { Ph } from "@/components/ui/Text";
 import { RelativeDay } from "@/components/RelativeDay";
 import Link from "next/link";
+import { Fragment } from "react";
 
 export async function Hero() {
   const { next, upcoming, past } = await getSchedule();
@@ -46,9 +47,14 @@ export async function Hero() {
         <h1 className="t-hero mt-[clamp(1.25rem,3.2vh,2.5rem)] max-w-[12ch]">
           <span className="sr-only">{site.name}: </span>
           {site.promise.map((line, i) => (
-            <span className="mask-line" key={line} style={{ "--i": i } as React.CSSProperties}>
-              <span className="whitespace-nowrap">{line}</span>
-            </span>
+            <Fragment key={line}>
+              {/* The lines are blocks, so this space is never seen, but it keeps the words apart
+                  in the heading's text (search results, screen readers, copy and paste). */}
+              {i > 0 ? " " : null}
+              <span className="mask-line" style={{ "--i": i } as React.CSSProperties}>
+                <span className="whitespace-nowrap">{line}</span>
+              </span>
+            </Fragment>
           ))}
         </h1>
 
