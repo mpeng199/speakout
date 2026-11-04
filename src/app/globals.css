@@ -1129,3 +1129,73 @@ html.lenis body {
   padding-bottom: 0.04em;
   color: var(--color-paper);
 }
+
+/* ───────────────────────────── Page transitions (View Transitions API) ─────────────────────────────
+   Old page leaves fast, new page arrives gently. The event label morphs between
+   the list and the event page. The header stays put. */
+
+::view-transition {
+  pointer-events: none;
+}
+::view-transition-old(.page-out) {
+  animation: 160ms var(--ease-in-out) both vt-fade-out;
+}
+::view-transition-new(.page-in) {
+  animation:
+    260ms var(--ease-out) 120ms both vt-fade-in,
+    520ms var(--ease-out) both vt-rise;
+}
+::view-transition-group(.morph) {
+  animation-duration: 560ms;
+  animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+}
+::view-transition-image-pair(.morph) {
+  animation-name: vt-soften;
+}
+::view-transition-group(site-header) {
+  animation: none;
+  z-index: 100;
+}
+::view-transition-old(site-header) {
+  display: none;
+}
+::view-transition-new(site-header) {
+  animation: none;
+}
+@keyframes vt-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes vt-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes vt-rise {
+  from {
+    transform: translateY(14px);
+  }
+}
+@keyframes vt-soften {
+  35% {
+    filter: blur(2px);
+  }
+}
+/* The morphing label is already in place after a client-side navigation. */
+[data-navigated] .vt-label,
+[data-navigated] .vt-label [data-print] {
+  animation: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+/* Anchor targets clear the fixed navigation, however they are reached. */
+main [id] {
+  scroll-margin-top: var(--nav-h);
+}

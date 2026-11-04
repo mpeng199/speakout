@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import { ViewTransition } from "react";
 import { copy, events, site } from "@/content/series";
 import { eventBySlug, getSchedule } from "@/lib/content";
 import { AmberField } from "@/components/visuals/AmberField";
@@ -60,7 +61,8 @@ export default async function EventPage({ params }: PageProps<"/events/[slug]">)
   ];
 
   return (
-    <>
+    <ViewTransition enter="page-in" exit="page-out" default="none">
+      <div>
       {/* ───────────── Hero ───────────── */}
       <section
         id="top"
@@ -144,7 +146,9 @@ export default async function EventPage({ params }: PageProps<"/events/[slug]">)
             </div>
 
             <div className="col-span-12 md:col-span-8 lg:col-span-4 lg:col-start-9">
-              <Label className="hero-label intro-fade" reveal="intro" left={site.name} right={event.label} title="Details" rows={rows} footer="No slides. No science background needed." />
+              <ViewTransition name={`label-${event.slug}`} share="morph" default="none">
+                <Label className="hero-label vt-label intro-fade" reveal="intro" left={site.name} right={event.label} title="Details" rows={rows} footer="No slides. No science background needed." />
+              </ViewTransition>
             </div>
           </div>
         </div>
@@ -271,6 +275,7 @@ export default async function EventPage({ params }: PageProps<"/events/[slug]">)
 
       <SiteFooter />
       <EventJsonLd event={event} />
-    </>
+      </div>
+    </ViewTransition>
   );
 }

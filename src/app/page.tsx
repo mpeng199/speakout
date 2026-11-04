@@ -8,10 +8,12 @@ import { Researchers } from "@/components/sections/Researchers";
 import { Faq } from "@/components/sections/Faq";
 import { SiteFooter } from "@/components/sections/SiteFooter";
 import { SeriesJsonLd } from "@/components/JsonLd";
+import { ViewTransition } from "react";
 
 export default function Home() {
   return (
-    <>
+    <ViewTransition enter="page-in" exit="page-out" default="none">
+      <div>
       <Hero />
       <About />
       <Evening />
@@ -22,6 +24,7 @@ export default function Home() {
       <Faq />
       <SiteFooter />
       <SeriesJsonLd />
-    </>
+      </div>
+    </ViewTransition>
   );
 }

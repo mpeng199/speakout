@@ -10,6 +10,21 @@ import { useEffect } from "react";
 export function Motion() {
   const pathname = usePathname();
 
+  // Mark client-side navigations: the label that morphs between pages should
+  // not also replay its page-load intro.
+  useEffect(() => {
+    const mark = (e: Event) => {
+      const a = (e.target as HTMLElement | null)?.closest?.("a[href^='/']");
+      if (a || e.type === "popstate") document.documentElement.dataset.navigated = "true";
+    };
+    document.addEventListener("click", mark, true);
+    window.addEventListener("popstate", mark);
+    return () => {
+      document.removeEventListener("click", mark, true);
+      window.removeEventListener("popstate", mark);
+    };
+  }, []);
+
   useEffect(() => {
     let cleanup: (() => void) | undefined;
     let cancelled = false;

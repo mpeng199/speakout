@@ -56,7 +56,7 @@ export function Nav({ name, links, cta }: { name: string; links: NavLink[]; cta:
 
   return (
     <>
-      <header className="site-nav" data-site-nav data-theme="hero">
+      <header className="site-nav" data-site-nav data-theme="hero" style={{ viewTransitionName: "site-header" }}>
         <div className="wrap site-nav-inner">
           <Link href="/" className="site-nav-mark t-ui" aria-label={`${name}, home`}>
             {name}

@@ -181,7 +181,9 @@ function fades() {
     );
   });
   // Label cards print row by row, like a pharmacy label coming out of the printer.
+  const arrivedByMorph = document.documentElement.dataset.navigated === "true";
   document.querySelectorAll<HTMLElement>("[data-reveal='print']").forEach((card) => {
+    if (arrivedByMorph && card.classList.contains("vt-label")) return;
     const rows = card.querySelectorAll<HTMLElement>("[data-print]");
     const tl = gsap.timeline({ scrollTrigger: { trigger: card, start: "top 86%", once: true } });
     tl.from(card, { y: 24, autoAlpha: 0, duration: 0.7, ease: EASE });
@@ -398,15 +400,20 @@ export function setupMotion({ reduce }: { reduce: boolean }) {
     }
     if (cancelled) return;
     ScrollTrigger.refresh();
-    // Land on a hash target once pinning has changed the page height (e.g. /#faq from another page).
-    if (location.hash) {
+    // Land on a hash target once pinning has changed the page height
+    // (e.g. /#faq from another page). Runs again a frame later so it wins
+    // over the router's own scroll.
+    const land = () => {
+      if (cancelled || !location.hash) return;
       const target = document.getElementById(decodeURIComponent(location.hash.slice(1)));
-      if (target) {
-        const top = target.getBoundingClientRect().top + window.scrollY - navHeight();
-        if (lenis) lenis.scrollTo(top, { immediate: true });
-        else window.scrollTo(0, top);
-      }
-    }
+      if (!target) return;
+      const top = Math.max(0, target.getBoundingClientRect().top + window.scrollY - (target.id === "top" ? 0 : navHeight()));
+      lenis?.resize();
+      window.scrollTo(0, top);
+      lenis?.scrollTo(top, { immediate: true, force: true });
+    };
+    land();
+    requestAnimationFrame(() => requestAnimationFrame(land));
   })();
 
 

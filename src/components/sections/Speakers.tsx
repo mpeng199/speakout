@@ -30,7 +30,7 @@ export function Speakers() {
               <p className="t-lead max-w-[36ch] text-[color:var(--night-2)]" data-reveal="fade">
                 {copy.speakers.emptyNote}
               </p>
-              <a href="#researchers" className="t-label link self-start sm:self-auto">
+              <a href="#researchers" className="t-label link self-start whitespace-nowrap sm:self-auto">
                 Are you a researcher? Give a talk →
               </a>
             </div>

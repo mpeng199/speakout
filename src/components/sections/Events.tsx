@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ViewTransition } from "react";
 import { copy, site } from "@/content/series";
 import { getSchedule, type EventView } from "@/lib/content";
 import { Label } from "@/components/ui/Label";
@@ -12,7 +13,10 @@ export function EventCard({ event, headingLevel = "h3" }: { event: EventView; he
   ];
   return (
     <article className="event-card" aria-labelledby={`event-${event.slug}`}>
+      {/* The label morphs into the event page's label on navigation */}
+      <ViewTransition name={`label-${event.slug}`} share="morph" default="none">
       <Label
+        className="vt-label"
         left={
           <span className="inline-flex items-center gap-2.5">
             {site.name}
@@ -48,6 +52,7 @@ export function EventCard({ event, headingLevel = "h3" }: { event: EventView; he
           </div>
         }
       />
+      </ViewTransition>
     </article>
   );
 }

@@ -155,12 +155,13 @@ export function AmberField({ variant = "hero", id, className = "" }: { variant?:
         preserveDrawingBuffer: false,
         // Software rendering (no GPU) would make the light slow and the page
         // janky, so those devices keep the static CSS light instead.
-        failIfMajorPerformanceCaveat: true,
+        failIfMajorPerformanceCaveat: !new URLSearchParams(location.search).has("forcegl"),
       });
       if (!gl) return; // CSS fallback stays visible
       const info = gl.getExtension("WEBGL_debug_renderer_info");
       const renderer = String(info ? gl.getParameter(info.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER));
-      if (/swiftshader|llvmpipe|softpipe|software|basic render/i.test(renderer)) {
+      const forced = new URLSearchParams(location.search).has("forcegl"); // QA only
+      if (!forced && /swiftshader|llvmpipe|softpipe|software|basic render/i.test(renderer)) {
         gl.getExtension("WEBGL_lose_context")?.loseContext();
         gl = null;
         return;
