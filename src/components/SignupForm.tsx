@@ -119,7 +119,7 @@ export function SignupForm({
             <input type="hidden" name="_subject" value="New mailing list signup" />
             <button type="submit" className="btn btn-amber signup-button" disabled={status === "sending"}>
               <span>{status === "sending" ? "Signing up…" : button}</span>
-              <span className="arrow" aria-hidden="true">
+              <span className="arrow-right" aria-hidden="true">
                 →
               </span>
             </button>

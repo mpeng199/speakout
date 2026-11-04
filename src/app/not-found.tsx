@@ -29,8 +29,8 @@ export default function NotFound() {
         <div className="mt-10 intro-fade" style={{ "--d": 160 } as React.CSSProperties}>
           <Link href="/" className="btn btn-amber">
             <span>Back to the home page</span>
-            <span className="arrow" aria-hidden="true">
-              ↗
+            <span className="arrow-right" aria-hidden="true">
+              →
             </span>
           </Link>
         </div>

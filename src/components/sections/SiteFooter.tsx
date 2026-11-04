@@ -14,7 +14,7 @@ export function SiteFooter() {
         <div className="grid-12 gap-y-10">
           <div className="col-span-12 lg:col-span-6">
             <p className="t-label eyebrow">Mailing list</p>
-            <h2 id="signup-title" className="t-hero mt-6" data-reveal="lines">
+            <h2 id="signup-title" className="t-hero balance mt-6" data-reveal="lines">
               {copy.signup.title}
             </h2>
             <p className="t-lead mt-6 max-w-[30ch] text-[color:var(--paper-2)]" data-reveal="fade">

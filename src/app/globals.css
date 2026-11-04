@@ -364,6 +364,13 @@ html.lenis body {
 .btn:hover .arrow {
   transform: translate(0.18em, -0.18em);
 }
+.btn .arrow-right {
+  display: inline-block;
+  transition: transform 0.45s var(--ease-out);
+}
+.btn:hover .arrow-right {
+  transform: translateX(0.22em);
+}
 .btn .arrow-down {
   display: inline-block;
   transition: transform 0.45s var(--ease-out);
