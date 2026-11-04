@@ -282,7 +282,8 @@ export default async function EventPage({ params }: PageProps<"/events/[slug]">)
             <h2 id="venue-title" className="t-label eyebrow">
               Getting there
             </h2>
-            <p className="t-d1 mt-8" data-reveal="lines">
+            {/* Long venue names ("…, Second Floor Reading Room") step down a size so they don't fill the column. */}
+            <p className={`${event.venue && event.venue.name.length > 26 ? "t-d2" : "t-d1"} balance mt-8`} data-reveal="lines">
               {event.venue ? event.venue.name : "Venue to be announced."}
             </p>
           </div>
