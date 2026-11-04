@@ -1285,3 +1285,42 @@ html.menu-open {
     top: 0;
   }
 }
+
+/* A short stack of blank labels behind a lone event card */
+.label-stack {
+  position: relative;
+  isolation: isolate;
+  padding: 1.25rem 1.25rem 0 0;
+}
+.label-stack::before,
+.label-stack::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  border-radius: 0.75rem;
+  background: var(--color-paper);
+  border-top: 0.375rem solid var(--color-amber);
+}
+.label-stack::before {
+  inset: 0.625rem 0.625rem 0.625rem 0.625rem;
+  opacity: 0.22;
+}
+.label-stack::after {
+  inset: 0 0 1.25rem 1.25rem;
+  opacity: 0.1;
+}
+.label-stack .event-card {
+  transform-origin: 0 100%;
+}
+@media (hover: hover) {
+  .label-stack::before,
+  .label-stack::after {
+    transition: transform 0.6s var(--ease-out), opacity 0.6s var(--ease-out);
+  }
+  .label-stack:hover::before {
+    transform: translate(0.25rem, -0.25rem);
+  }
+  .label-stack:hover::after {
+    transform: translate(0.5rem, -0.5rem);
+  }
+}

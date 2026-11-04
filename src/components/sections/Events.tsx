@@ -73,7 +73,9 @@ export async function Events() {
         <div className="grid-12 mt-[clamp(3rem,6vw,5rem)] items-start gap-y-10">
           <ul className="col-span-12 grid gap-[var(--gutter)] lg:col-span-7" aria-label="Upcoming events">
             {upcoming.map((e) => (
-              <li key={e.slug}>
+              // With a single evening announced, the card sits on a short stack of
+              // blank labels: more dates are coming.
+              <li key={e.slug} className={upcoming.length === 1 ? "label-stack" : undefined}>
                 <EventCard event={e} />
               </li>
             ))}
