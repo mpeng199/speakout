@@ -827,8 +827,9 @@ html.lenis body {
 .evening {
   overflow: clip;
 }
+/* Stacked (no pin), the stage is not positioned, so the light fills the whole section,
+   padding included, instead of leaving a lighter band above and below the steps. */
 .evening-stage {
-  position: relative;
   isolation: isolate;
 }
 .evening-light {
@@ -881,6 +882,7 @@ html.lenis body {
   padding-block: 0;
 }
 [data-pinned] .evening-stage {
+  position: relative;
   height: 100svh;
   min-height: 34rem;
 }
