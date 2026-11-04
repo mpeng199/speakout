@@ -135,6 +135,47 @@ function navTheme(reduce: boolean) {
   };
 }
 
+/* ───────────────────────────── Phone signup pill ───────────────────────────── */
+
+/**
+ * Phones: once the hero has gone by, a small "Get on the list" pill waits at the bottom of the
+ * screen. It steps aside over the pinned sequence (its progress bar lives down there) and while the
+ * signup itself is on screen. CSS hides it on wider screens and while the menu is open.
+ */
+function signupPill() {
+  const pill = document.querySelector<HTMLElement>("[data-signup-pill]");
+  const hero = document.getElementById("top");
+  const signup = document.getElementById("signup");
+  const evening = document.querySelector<HTMLElement>("[data-evening]");
+  if (!pill || !hero || !signup) return () => {};
+  const at = { past: false, signup: false, evening: false };
+  const update = () =>
+    pill.classList.toggle("is-shown", at.past && !at.signup && !(at.evening && evening?.hasAttribute("data-pinned")));
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      if (e.target === hero) at.past = !e.isIntersecting && e.boundingClientRect.top < 0;
+      else at.signup = e.isIntersecting;
+    });
+    update();
+  });
+  io.observe(hero);
+  io.observe(signup);
+  // Only the bottom of the screen, where the pill sits, matters for the pinned stage.
+  const low = new IntersectionObserver(
+    ([e]) => {
+      at.evening = e.isIntersecting;
+      update();
+    },
+    { rootMargin: "-80% 0px 0px 0px" },
+  );
+  if (evening) low.observe(evening);
+  return () => {
+    io.disconnect();
+    low.disconnect();
+    pill.classList.remove("is-shown");
+  };
+}
+
 /* ───────────────────────────── Line reveals ───────────────────────────── */
 
 /**
@@ -581,7 +622,7 @@ export function setupMotion({ reduce }: { reduce: boolean }) {
   let cancelled = false;
 
   const steps: (() => (() => void) | void)[] = reduce
-    ? [() => teardownLenis(), () => smoothAnchors(reduce), () => navTheme(reduce), () => fitText(), () => heroStack(reduce)]
+    ? [() => teardownLenis(), () => smoothAnchors(reduce), () => navTheme(reduce), () => fitText(), () => heroStack(reduce), () => signupPill()]
     : [
         () => {
           startLenis();
@@ -592,6 +633,7 @@ export function setupMotion({ reduce }: { reduce: boolean }) {
         () => magnetic(),
         () => tilt(),
         () => evening(),
+        () => signupPill(),
         () => heroStack(reduce),
         () => parallax(),
         () => fades(),

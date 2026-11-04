@@ -10,6 +10,7 @@ import { SiteFooter } from "@/components/sections/SiteFooter";
 import { SeriesJsonLd } from "@/components/JsonLd";
 import { ViewTransition } from "react";
 import { Motion } from "@/components/motion/Motion";
+import { copy } from "@/content/series";
 
 export default function Home() {
   return (
@@ -27,6 +28,13 @@ export default function Home() {
       <Researchers />
       <Faq />
       <SiteFooter />
+      {/* Phones: once the hero has gone by, the signup waits at the bottom of the screen (shown by the motion layer) */}
+      <a href="#signup" className="btn btn-amber signup-pill" data-signup-pill>
+        <span>{copy.hero.cta}</span>
+        <span className="arrow-down" aria-hidden="true">
+          ↓
+        </span>
+      </a>
       <SeriesJsonLd />
       {/* Last on the page, so motion only starts once everything above has hydrated */}
       <Motion />
