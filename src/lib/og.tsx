@@ -1,5 +1,8 @@
 import { ImageResponse } from "next/og";
 import { cacheLife } from "next/cache";
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
+import sharp from "sharp";
 
 export const OG_SIZE = { width: 1200, height: 630 };
 
@@ -24,34 +27,34 @@ async function loadFont(family: string, spec: string, text: string, stretch?: st
   return res.arrayBuffer();
 }
 
-/* Soft caustic strands, drawn as loose curves inside the light pool. */
-const strands = [
-  "M610 560 C 700 470, 820 520, 900 440 S 1060 330, 1200 370",
-  "M580 630 C 690 580, 770 620, 870 560 S 1030 480, 1200 530",
-  "M740 330 C 810 400, 900 360, 965 410 S 1070 500, 1200 470",
-  "M690 460 C 770 410, 815 330, 905 315 S 1010 250, 1200 280",
-  "M800 630 C 850 560, 945 580, 1000 520 S 1095 440, 1200 455",
-  "M860 210 C 920 280, 1005 270, 1065 320 S 1140 400, 1200 390",
-  "M930 630 C 950 560, 1030 545, 1060 480 S 1120 400, 1180 330",
-  "M700 600 C 760 520, 880 600, 940 520 S 1000 420, 1090 380",
-  "M1010 230 C 1000 300, 1070 330, 1060 400 S 1100 520, 1170 560",
-];
+/**
+ * A frame of the site's own light (the hero shader at its intro state), cropped to 1200 × 630.
+ * Read once at build time; the share image is static.
+ */
+const lightSrc = `data:image/jpeg;base64,${await readFile(join(process.cwd(), "src/lib/og-light.jpg"), "base64")}`;
 
-export async function renderOg({
-  eyebrow,
-  lines,
-  labelLeft,
-  labelRight,
-  labelTitle,
-  rows,
-}: {
+type OgCard = {
   eyebrow: string;
   lines: string[];
   labelLeft: string;
   labelRight: string;
   labelTitle: string;
   rows: [string, string][];
-}) {
+};
+
+/** The share image for a page, as a JPEG response. */
+export async function renderOg(card: OgCard) {
+  return new Response(await drawOg(card), { headers: { "Content-Type": "image/jpeg" } });
+}
+
+/**
+ * Draws the card and encodes it. Cached, so the image is made once at build time (the encoder's
+ * async work would otherwise keep the route from being prerendered) and only redrawn when the
+ * content behind it changes.
+ */
+async function drawOg({ eyebrow, lines, labelLeft, labelRight, labelTitle, rows }: OgCard): Promise<Uint8Array<ArrayBuffer>> {
+  "use cache";
+  cacheLife("max");
   const displayText = [eyebrow, ...lines, labelLeft, labelRight, labelTitle, ...rows.map((r) => r[0])].join(" ").toUpperCase() +
     [eyebrow, ...lines, labelLeft, labelRight, labelTitle, ...rows.map((r) => r[0])].join(" ");
   const serifText = rows.map((r) => r[1]).join(" ");
@@ -64,7 +67,7 @@ export async function renderOg({
 
   const headlineSize = lines.some((l) => l.length > 14) ? 76 : 96;
 
-  return new ImageResponse(
+  const png = new ImageResponse(
     (
       <div
         style={{
@@ -77,36 +80,23 @@ export async function renderOg({
           fontFamily: "Mona",
         }}
       >
-        {/* Pool of amber light, built from soft shadows (no filters in the OG renderer) */}
+        {/* eslint-disable-next-line @next/next/no-img-element -- rendered by next/og, not the browser */}
+        <img src={lightSrc} width={1200} height={630} alt="" style={{ position: "absolute", left: 0, top: 0 }} />
+        {/* The hero's shade: dark behind the headline, the light left open at the bottom right */}
         <div
           style={{
             position: "absolute",
-            left: 860,
-            top: 420,
-            width: 220,
-            height: 140,
-            borderRadius: 140,
-            background: "rgba(240,150,42,0.38)",
-            boxShadow: "0 0 200px 150px rgba(240,150,42,0.26)",
+            inset: 0,
+            backgroundImage: `linear-gradient(105deg, rgba(14,15,19,0.96) 0%, rgba(14,15,19,0.8) 34%, rgba(14,15,19,0.2) 64%, rgba(14,15,19,0) 80%)`,
           }}
         />
         <div
           style={{
             position: "absolute",
-            left: 960,
-            top: 470,
-            width: 80,
-            height: 50,
-            borderRadius: 80,
-            background: "rgba(255,211,145,0.35)",
-            boxShadow: "0 0 90px 60px rgba(255,200,130,0.18)",
+            inset: 0,
+            backgroundImage: `linear-gradient(180deg, rgba(14,15,19,0.55) 0%, rgba(14,15,19,0) 30%)`,
           }}
         />
-        <svg width="1200" height="630" viewBox="0 0 1200 630" style={{ position: "absolute", left: 0, top: 0 }}>
-          {strands.map((d, i) => (
-            <path key={i} d={d} fill="none" stroke={i % 2 ? "#ffd391" : AMBER} strokeWidth={i % 3 === 0 ? 3 : 1.6} strokeOpacity={0.32 + (i % 3) * 0.16} />
-          ))}
-        </svg>
 
         <div style={{ position: "absolute", left: 64, top: 56, display: "flex", alignItems: "center", gap: 14 }}>
           <div style={{ width: 10, height: 10, borderRadius: 10, background: AMBER }} />
@@ -169,4 +159,11 @@ export async function renderOg({
       ],
     },
   );
+
+  // The light is photographic, so as PNG the card weighs ~750 KB. JPEG keeps it small enough
+  // for apps that skip large preview images (WhatsApp is reported to, above roughly 300 KB).
+  const jpeg = await sharp(Buffer.from(await png.arrayBuffer()))
+    .jpeg({ quality: 84, mozjpeg: true, chromaSubsampling: "4:4:4" })
+    .toBuffer();
+  return new Uint8Array(jpeg);
 }

@@ -3,7 +3,7 @@ import { OG_SIZE, renderOg } from "@/lib/og";
 
 export const alt = `${site.name}: ${site.promise.join(" ")} Free evening talks on medicine in New York City.`;
 export const size = OG_SIZE;
-export const contentType = "image/png";
+export const contentType = "image/jpeg";
 
 export default async function Image() {
   return renderOg({

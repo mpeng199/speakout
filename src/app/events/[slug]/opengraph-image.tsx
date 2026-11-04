@@ -4,7 +4,7 @@ import { OG_SIZE, renderOg } from "@/lib/og";
 
 export const alt = `An evening at ${site.name}, free talks on medicine in New York City`;
 export const size = OG_SIZE;
-export const contentType = "image/png";
+export const contentType = "image/jpeg";
 
 export async function generateStaticParams() {
   return events.map((e) => ({ slug: e.slug }));
