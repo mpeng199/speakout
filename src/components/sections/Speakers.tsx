@@ -39,13 +39,15 @@ export function Speakers() {
           <ul className="mt-[clamp(2.5rem,6vw,5rem)] grid gap-[var(--gutter)] sm:grid-cols-2 lg:grid-cols-3" data-reveal="stagger">
             {list.map((s) => (
               <li key={s.id} className="speaker">
-                <div className="speaker-portrait" aria-hidden={s.photo ? undefined : true}>
-                  {s.photo ? (
+                {s.photo ? (
+                  <div className="speaker-portrait">
                     <Image src={s.photo} alt={`Portrait of ${s.name}`} fill sizes="(min-width: 64rem) 30vw, (min-width: 40rem) 45vw, 90vw" className="object-cover" />
-                  ) : (
-                    <span className="t-d1">{initials(s.name)}</span>
-                  )}
-                </div>
+                  </div>
+                ) : (
+                  <div className="speaker-badge" aria-hidden="true">
+                    <span className="t-d3">{initials(s.name)}</span>
+                  </div>
+                )}
                 <h3 className="t-d3 mt-5">{s.name}</h3>
                 <p className="t-small mt-1 text-[color:var(--night-2)]">
                   {s.role}, {s.affiliation}

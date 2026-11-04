@@ -103,7 +103,7 @@ export default async function EventPage({ params }: PageProps<"/events/[slug]">)
                 <span className={event.isTba ? "tba-chip t-label" : "t-label eyebrow"}>{status}</span>
                 {event.topic ? <span className="t-label text-[color:var(--paper-3)]">{event.topic}</span> : null}
               </p>
-              <h1 id="event-title" className="t-hero mt-6">
+              <h1 id="event-title" className={`${event.display.title.length > 18 ? "t-d1 max-w-[18ch]" : "t-hero"} balance mt-6`}>
                 <span className="sr-only">
                   {site.name} {event.label}:{" "}
                 </span>
@@ -189,12 +189,12 @@ export default async function EventPage({ params }: PageProps<"/events/[slug]">)
           <div className="col-span-12 lg:col-span-5 lg:col-start-8">
             <h2 className="t-label eyebrow">Speaker</h2>
             {speaker ? (
-              <div className="mt-8 grid gap-6 sm:grid-cols-[10rem_1fr]">
-                <div className="speaker-portrait w-40">
+              <div className={`mt-8 grid gap-6 ${speaker.photo ? "sm:grid-cols-[10rem_1fr]" : "grid-cols-[4.5rem_1fr]"}`}>
+                <div className={speaker.photo ? "speaker-portrait w-40" : "speaker-badge"}>
                   {speaker.photo ? (
                     <Image src={speaker.photo} alt={`Portrait of ${speaker.name}`} fill sizes="10rem" className="object-cover" />
                   ) : (
-                    <span className="t-d2" aria-hidden="true">
+                    <span className="t-d3" aria-hidden="true">
                       {speaker.name
                         .split(/\s+/)
                         .slice(0, 2)

@@ -1027,6 +1027,20 @@ html.lenis body {
 
 /* ───────────────────────────── Speakers ───────────────────────────── */
 
+.speaker-badge {
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 50%;
+  background: var(--color-night);
+  color: var(--color-amber);
+  display: grid;
+  place-items: center;
+  letter-spacing: -0.02em;
+}
+.speaker {
+  border-top: 1px solid var(--night-line);
+  padding-top: 1.5rem;
+}
 .speaker-portrait {
   position: relative;
   aspect-ratio: 4 / 5;

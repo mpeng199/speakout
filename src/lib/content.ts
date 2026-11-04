@@ -78,6 +78,10 @@ export function formatDateLong(ts: number): string {
   return fmt({ weekday: "long", month: "long", day: "numeric", year: "numeric" }).format(new Date(ts));
 }
 
+export function formatDateMedium(ts: number): string {
+  return fmt({ weekday: "short", month: "short", day: "numeric", year: "numeric" }).format(new Date(ts));
+}
+
 export function formatDateShort(ts: number): string {
   return fmt({ weekday: "short", month: "short", day: "numeric" }).format(new Date(ts));
 }
@@ -121,6 +125,7 @@ export type EventView = SeriesEvent & {
   display: {
     title: string;
     date: string;
+    dateMedium: string;
     dateShort: string;
     time: string;
     doors: string | null;
@@ -148,6 +153,7 @@ export function toEventView(e: SeriesEvent): EventView {
     display: {
       title: e.title ?? (e.number === 1 ? "First evening" : `Evening ${labelNumber(e.number)}`),
       date: startTs !== null ? formatDateLong(startTs) : "Date TBA",
+      dateMedium: startTs !== null ? formatDateMedium(startTs) : "Date TBA",
       dateShort: startTs !== null ? formatDateShort(startTs) : "TBA",
       time: startTs !== null ? formatTime(startTs) : "Time TBA",
       doors: doorsTs !== null ? formatTime(doorsTs) : null,

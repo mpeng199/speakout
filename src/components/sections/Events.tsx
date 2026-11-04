@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/Label";
 
 export function EventCard({ event, headingLevel = "h3" }: { event: EventView; headingLevel?: "h2" | "h3" }) {
   const rows = [
-    { term: "When", detail: event.isTba ? "Date TBA" : `${event.display.date}, ${event.display.time}` },
+    { term: "When", detail: event.isTba ? "Date TBA" : `${event.display.dateMedium} · ${event.display.time}` },
     { term: "Where", detail: event.venue ? event.venue.name : `Venue TBA, ${site.city}` },
     { term: "Speaker", detail: event.display.speaker },
     { term: "Topic", detail: event.display.topic },
