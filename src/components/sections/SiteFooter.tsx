@@ -45,6 +45,7 @@ export function SiteFooter() {
               )}
             </p>
           </div>
+          {social.length ? (
           <div className="col-span-12 sm:col-span-6 lg:col-span-3">
             <h3 className="t-label text-[color:var(--paper-3)]">Follow</h3>
             <ul className="t-body mt-3 grid gap-1.5">
@@ -64,6 +65,7 @@ export function SiteFooter() {
               ))}
             </ul>
           </div>
+          ) : null}
           <div className="col-span-12 lg:col-span-5 lg:col-start-8">
             <h3 className="t-label text-[color:var(--paper-3)]">Run by</h3>
             <p className="t-body mt-3">
