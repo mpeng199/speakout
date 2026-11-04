@@ -17,7 +17,7 @@ export function About() {
               <p className="t-label col-span-12 text-[color:var(--night-3)] lg:col-span-2 lg:col-start-1 lg:row-start-1 lg:pt-[1.1em]" data-reveal="fade">
                 {s.label}
               </p>
-              <p className={`t-d1 balance col-span-12 lg:row-start-1 ${textCols[i] ?? textCols[0]}`} data-reveal="lines">
+              <p className={`t-d1 balance col-span-12 lg:row-start-1 ${textCols[i] ?? textCols[0]}`} data-reveal="read">
                 {s.text}
               </p>
             </div>

@@ -228,6 +228,56 @@ function lineReveals() {
   };
 }
 
+/**
+ * The About statements are read as they rise: each line's words go from 20% to full ink while the
+ * line crosses a band across the lower middle of the screen (85% → 55% of its height), one scrubbed
+ * ScrollTrigger per statement. The split words are hidden from screen readers and a plain copy of
+ * the sentence sits beside them, so it is still read once, as a sentence.
+ */
+function reading() {
+  const splits: SplitText[] = [];
+  const copies: HTMLElement[] = [];
+  document.querySelectorAll<HTMLElement>("[data-reveal='read']").forEach((el) => {
+    const copy = document.createElement("p");
+    copy.className = "sr-only";
+    copy.textContent = el.textContent;
+    el.after(copy);
+    copies.push(copy);
+    splits.push(
+      SplitText.create(el, {
+        type: "words",
+        aria: "hidden",
+        autoSplit: true,
+        onSplit(self) {
+          const words = self.words as HTMLElement[];
+          if (!words.length) return;
+          const lines: HTMLElement[][] = [];
+          words.forEach((w) => {
+            const line = lines[lines.length - 1];
+            if (line && Math.abs(line[0].offsetTop - w.offsetTop) < 4) line.push(w);
+            else lines.push([w]);
+          });
+          // Timeline time is scroll distance in pixels, so each line lights up exactly while it crosses the band.
+          const band = window.innerHeight * 0.3;
+          const first = words[0].offsetTop;
+          const tl = gsap.timeline({
+            defaults: { ease: "none" },
+            scrollTrigger: { trigger: el, start: "top 85%", end: `+=${lines[lines.length - 1][0].offsetTop - first + band}`, scrub: true },
+          });
+          lines.forEach((line) => {
+            tl.fromTo(line, { opacity: 0.2 }, { opacity: 1, duration: band * 0.4, stagger: { amount: band * 0.6 } }, line[0].offsetTop - first);
+          });
+          return tl;
+        },
+      }),
+    );
+  });
+  return () => {
+    splits.forEach((s) => s.revert());
+    copies.forEach((c) => c.remove());
+  };
+}
+
 /** The footer wordmark: each letter rises out of its mask, left to right. */
 function charReveals() {
   const splits: SplitText[] = [];
@@ -638,6 +688,7 @@ export function setupMotion({ reduce }: { reduce: boolean }) {
         () => parallax(),
         () => fades(),
         () => lineReveals(),
+        () => reading(),
         () => charReveals(),
       ];
 
