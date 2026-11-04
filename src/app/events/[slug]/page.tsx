@@ -255,9 +255,10 @@ export default async function EventPage({ params }: PageProps<"/events/[slug]">)
           <h2 id="runs-title" className="t-label eyebrow">
             How the evening runs
           </h2>
-          <ol className="mt-12 grid gap-x-[var(--gutter)] gap-y-10 lg:grid-cols-3" data-reveal="stagger">
+          {/* On large screens the columns share rows (subgrid), so the text starts on one line even when a title wraps. */}
+          <ol className="mt-12 grid gap-x-[var(--gutter)] gap-y-10 lg:grid-cols-3 lg:gap-y-0" data-reveal="stagger">
             {copy.evening.steps.map((s, i) => (
-              <li key={s.title} className="border-t border-[color:var(--paper-line)] pt-6">
+              <li key={s.title} className="border-t border-[color:var(--paper-line)] pt-6 lg:row-span-3 lg:grid lg:grid-rows-subgrid">
                 <p className="t-label tabular text-[color:var(--color-amber)]">{String(i + 1).padStart(2, "0")}</p>
                 <h3 className="t-d2 mt-4">{s.title}</h3>
                 <p className="t-body mt-4 max-w-[34ch] text-[color:var(--paper-2)]">{s.text}</p>
