@@ -46,6 +46,7 @@ export const amberRegistry = new Map<string, AmberController>();
 export function AmberField({ variant = "hero", id, className = "" }: { variant?: Variant; id?: string; className?: string }) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const photoRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -72,6 +73,45 @@ export function AmberField({ variant = "hero", id, className = "" }: { variant?:
     let u: Record<string, WebGLUniformLocation | null> = {};
     let program: WebGLProgram | null = null;
     let ext: { COMPLETION_STATUS_KHR: number } | null = null;
+
+    /*
+     * A pre-rendered frame of the light, drawn into a 2D canvas (never an LCP
+     * candidate). Used with reduced motion and where the shader can't run.
+     */
+    const photo = photoRef.current;
+    let bitmap: ImageBitmap | null = null;
+    let photoWanted = false;
+    const drawPhoto = () => {
+      if (!photo || !bitmap) return;
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      const w = Math.round(photo.clientWidth * dpr);
+      const h = Math.round(photo.clientHeight * dpr);
+      if (!w || !h) return;
+      if (photo.width !== w || photo.height !== h) {
+        photo.width = w;
+        photo.height = h;
+      }
+      const ctx = photo.getContext("2d");
+      if (!ctx) return;
+      // Cover, anchored bottom-right like the vector still.
+      const scale = Math.max(w / bitmap.width, h / bitmap.height);
+      const dw = bitmap.width * scale;
+      const dh = bitmap.height * scale;
+      ctx.drawImage(bitmap, w - dw, h - dh, dw, dh);
+      photo.classList.add("is-ready");
+    };
+    const loadPhoto = async () => {
+      if (!photo || photoWanted || disposed) return;
+      photoWanted = true;
+      try {
+        const res = await fetch("/amber/light.webp");
+        if (!res.ok) return;
+        bitmap = await createImageBitmap(await res.blob());
+        if (!disposed) drawPhoto();
+      } catch {
+        // The vector still stays.
+      }
+    };
 
     const onPointer = (e: PointerEvent) => {
       const r = canvas.getBoundingClientRect();
@@ -157,13 +197,17 @@ export function AmberField({ variant = "hero", id, className = "" }: { variant?:
         // janky, so those devices keep the static CSS light instead.
         failIfMajorPerformanceCaveat: !new URLSearchParams(location.search).has("forcegl"),
       });
-      if (!gl) return; // CSS fallback stays visible
+      if (!gl) {
+        loadPhoto(); // no fast GPU: show the pre-rendered light instead
+        return;
+      }
       const info = gl.getExtension("WEBGL_debug_renderer_info");
       const renderer = String(info ? gl.getParameter(info.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER));
       const forced = new URLSearchParams(location.search).has("forcegl"); // QA only
       if (!forced && /swiftshader|llvmpipe|softpipe|software|basic render/i.test(renderer)) {
         gl.getExtension("WEBGL_lose_context")?.loseContext();
         gl = null;
+        loadPhoto();
         return;
       }
       ext = gl.getExtension("KHR_parallel_shader_compile") as { COMPLETION_STATUS_KHR: number } | null;
@@ -224,6 +268,7 @@ export function AmberField({ variant = "hero", id, className = "" }: { variant?:
 
     const ro = new ResizeObserver(() => {
       if (reduce && program) requestAnimationFrame(draw);
+      if (bitmap) requestAnimationFrame(drawPhoto);
     });
     ro.observe(canvas);
 
@@ -258,6 +303,15 @@ export function AmberField({ variant = "hero", id, className = "" }: { variant?:
     };
     const intents = ["pointermove", "pointerdown", "touchstart", "wheel", "scroll", "keydown"] as const;
     const removeIntent = () => intents.forEach((t) => window.removeEventListener(t, want));
+    let photoIdle = 0;
+    if (reduce) {
+      const later = () => {
+        const ric = (window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number }).requestIdleCallback;
+        photoIdle = ric ? ric(() => loadPhoto(), { timeout: 2000 }) : window.setTimeout(() => loadPhoto(), 300);
+      };
+      if (document.readyState === "complete") later();
+      else window.addEventListener("load", later, { once: true });
+    }
     if (!reduce) {
       intents.forEach((t) => window.addEventListener(t, want, { passive: true, once: true }));
       const arm = () => {
@@ -282,6 +336,8 @@ export function AmberField({ variant = "hero", id, className = "" }: { variant?:
       ro.disconnect();
       removeIntent();
       window.clearTimeout(timer);
+      window.clearTimeout(photoIdle);
+      bitmap?.close();
       window.removeEventListener("pointermove", onPointer);
       document.removeEventListener("visibilitychange", onVisibility);
       const cic = (window as Window & { cancelIdleCallback?: (id: number) => void }).cancelIdleCallback;
@@ -296,7 +352,8 @@ export function AmberField({ variant = "hero", id, className = "" }: { variant?:
   return (
     <div ref={wrapRef} className={`amber-field ${className}`} aria-hidden="true">
       <AmberStill align={variant === "evening" ? "center" : "right"} />
-      <canvas ref={canvasRef} />
+      {variant !== "evening" ? <canvas ref={photoRef} className="amber-photo" /> : null}
+      <canvas ref={canvasRef} className="amber-gl" />
     </div>
   );
 }

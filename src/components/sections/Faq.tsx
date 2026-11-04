@@ -1,5 +1,5 @@
-import { copy, faq } from "@/content/series";
-import { isPlaceholder, stripBrackets } from "@/lib/content";
+import { copy, faq, site } from "@/content/series";
+import { isPlaceholder, mailto, stripBrackets } from "@/lib/content";
 
 /** Turns placeholder tokens inside a sentence, like [hello@…], into dashed-underline spans. */
 function withPlaceholders(text: string) {
@@ -42,6 +42,17 @@ export function Faq() {
                 </li>
               ))}
             </ul>
+            <p className="t-body mt-8 text-[color:var(--night-2)]">
+              Something else?{" "}
+              {mailto(site.contactEmail) ? (
+                <a href={mailto(site.contactEmail)!} className="link text-[color:var(--color-night)]">
+                  Write to {site.contactEmail}
+                </a>
+              ) : (
+                <>Write to {withPlaceholders(site.contactEmail)}</>
+              )}
+              .
+            </p>
           </div>
         </div>
       </div>

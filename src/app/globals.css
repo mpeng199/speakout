@@ -790,7 +790,7 @@ html.lenis body {
 }
 @media (max-width: 47.99rem) {
   .hero-shade {
-    --shade: linear-gradient(180deg, rgb(14 15 19 / 0.88) 0%, rgb(14 15 19 / 0.3) 42%, rgb(14 15 19 / 0.82) 100%);
+    --shade: linear-gradient(180deg, rgb(14 15 19 / 0.88) 0%, rgb(14 15 19 / 0.62) 38%, rgb(14 15 19 / 0.7) 62%, rgb(14 15 19 / 0.86) 100%);
   }
 }
 .hero-label {

@@ -1,4 +1,5 @@
-import { copy } from "@/content/series";
+import { copy, site } from "@/content/series";
+import { Ph } from "@/components/ui/Text";
 
 /* Statements step across the grid; the labels stay in the left rail like margin notes. */
 const textCols = ["lg:col-start-3 lg:col-span-9", "lg:col-start-4 lg:col-span-9", "lg:col-start-3 lg:col-span-8"];
@@ -21,6 +22,12 @@ export function About() {
               </p>
             </div>
           ))}
+        </div>
+        <div className="grid-12 mt-[clamp(4rem,8vw,7rem)] gap-y-4 border-t border-[color:var(--night-line)] pt-6">
+          <p className="t-label col-span-12 text-[color:var(--night-3)] lg:col-span-2">Run by</p>
+          <p className="t-lead col-span-12 lg:col-span-6 lg:col-start-3" data-reveal="fade">
+            <Ph value={site.organizer.name} />, <Ph value={site.organizer.bio} />
+          </p>
         </div>
       </div>
     </section>
