@@ -77,7 +77,9 @@ body {
   outline-offset: 3px;
   border-radius: 2px;
 }
-.on-paper :focus-visible {
+.on-paper :focus-visible,
+.label-card :focus-visible {
+  /* Amber on paper is under 3:1; inside a paper label (even on a dark section) the ring is dark. */
   outline-color: var(--color-night);
 }
 
