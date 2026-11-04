@@ -115,7 +115,7 @@ export default async function EventPage({ params }: PageProps<"/events/[slug]">)
               <p className="t-lead mt-8 max-w-[38ch] text-[color:var(--paper-2)] intro-fade" style={{ "--d": 100 } as React.CSSProperties}>
                 {event.summary ??
                   (event.isTba
-                    ? `The date, venue, speaker and topic for this evening will be announced soon. Join the mailing list and we’ll tell you as soon as they are set.`
+                    ? `The date, venue, speaker and topic for this evening will be announced soon. Join the mailing list and we’ll tell you as soon as they’re set.`
                     : `A researcher talks for 10 to 15 minutes, without slides. Then the room asks questions.`)}
               </p>
               <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-4 intro-fade" style={{ "--d": 180 } as React.CSSProperties}>
@@ -222,7 +222,7 @@ export default async function EventPage({ params }: PageProps<"/events/[slug]">)
                   To be announced.
                 </p>
                 <p className="t-lead mt-6 max-w-[34ch] text-[color:var(--night-2)]" data-reveal="fade">
-                  We name speakers once they have confirmed.
+                  We name speakers once they’ve confirmed.
                 </p>
               </>
             )}
@@ -236,7 +236,7 @@ export default async function EventPage({ params }: PageProps<"/events/[slug]">)
           <h2 id="runs-title" className="t-label eyebrow">
             How the evening runs
           </h2>
-          <ol className="mt-12 grid gap-[var(--gutter)] md:grid-cols-3" data-reveal="stagger">
+          <ol className="mt-12 grid gap-x-[var(--gutter)] gap-y-10 lg:grid-cols-3" data-reveal="stagger">
             {copy.evening.steps.map((s, i) => (
               <li key={s.title} className="border-t border-[color:var(--paper-line)] pt-6">
                 <p className="t-label tabular text-[color:var(--color-amber)]">{String(i + 1).padStart(2, "0")}</p>
