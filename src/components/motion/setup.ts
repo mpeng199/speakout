@@ -359,6 +359,78 @@ function magnetic() {
   return () => offs.forEach((f) => f());
 }
 
+/* ───────────────────────────── Label tilt ───────────────────────────── */
+
+/**
+ * A label leans a few degrees toward the pointer and a sheen follows it across the paper,
+ * like a label held up to the light (the perspective is set on its parent in globals.css).
+ * Mouse and trackpad only. One delegated listener, so labels added later (the signup
+ * confirmation) tilt too.
+ */
+function tilt() {
+  if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return () => {};
+  const MAX = 6; // degrees, at the card's edge
+  const cards = new Map<HTMLElement, { s: { x: number; y: number }; x: (v: number) => void; y: (v: number) => void }>();
+  let active: HTMLElement | null = null;
+
+  const get = (card: HTMLElement) => {
+    let t = cards.get(card);
+    if (!t) {
+      const s = { x: 0, y: 0 };
+      const paint = () => {
+        const a = Math.min(1, Math.hypot(s.x, s.y));
+        // The side under the pointer comes forward, so the card never slips out from under it.
+        card.style.rotate = a < 0.002 ? "" : `${s.y.toFixed(4)} ${(-s.x).toFixed(4)} 0 ${(a * MAX).toFixed(3)}deg`;
+        card.style.setProperty("--sheen-x", `${((s.x + 1) * 50).toFixed(2)}%`);
+        card.style.setProperty("--sheen-y", `${((s.y + 1) * 50).toFixed(2)}%`);
+      };
+      const vars = { duration: 0.6, ease: "power3.out", onUpdate: paint };
+      t = { s, x: gsap.quickTo(s, "x", vars), y: gsap.quickTo(s, "y", vars) };
+      cards.set(card, t);
+    }
+    return t;
+  };
+  const leave = () => {
+    if (!active) return;
+    active.classList.remove("is-lit");
+    const t = get(active);
+    t.x(0);
+    t.y(0);
+    active = null;
+  };
+  const move = (e: PointerEvent) => {
+    if (e.pointerType === "touch") return;
+    const card = (e.target as Element | null)?.closest?.<HTMLElement>(".label-card") ?? null;
+    if (card !== active) {
+      leave();
+      if (!card) return;
+      active = card;
+      card.classList.add("is-lit");
+    }
+    if (!card) return;
+    const r = card.getBoundingClientRect();
+    const t = get(card);
+    t.x(Math.max(-1, Math.min(1, ((e.clientX - r.left) / r.width) * 2 - 1)));
+    t.y(Math.max(-1, Math.min(1, ((e.clientY - r.top) / r.height) * 2 - 1)));
+  };
+  document.addEventListener("pointermove", move, { passive: true });
+  document.documentElement.addEventListener("pointerleave", leave);
+  // Scrolling carries the card away from a still pointer: it settles until the pointer moves again.
+  window.addEventListener("scroll", leave, { passive: true });
+  return () => {
+    document.removeEventListener("pointermove", move);
+    document.documentElement.removeEventListener("pointerleave", leave);
+    window.removeEventListener("scroll", leave);
+    cards.forEach(({ s }, card) => {
+      gsap.killTweensOf(s);
+      card.classList.remove("is-lit");
+      card.style.rotate = "";
+      card.style.removeProperty("--sheen-x");
+      card.style.removeProperty("--sheen-y");
+    });
+  };
+}
+
 /* ───────────────────────────── The evening (pinned sequence) ───────────────────────────── */
 
 /**
@@ -518,6 +590,7 @@ export function setupMotion({ reduce }: { reduce: boolean }) {
         () => navTheme(reduce),
         () => fitText(),
         () => magnetic(),
+        () => tilt(),
         () => evening(),
         () => heroStack(reduce),
         () => parallax(),

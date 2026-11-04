@@ -19,6 +19,7 @@ uniform vec3 uPool;     // centre x, centre y (0..1), radius
 uniform float uGain;    // overall brightness
 uniform float uSpread;  // 0 = one pool, 1 = light across the whole room
 uniform float uScale;   // caustic scale
+uniform float uLens;    // 0 → 1, the pointer's lens (fine pointers only)
 
 float h1(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123); }
 
@@ -62,7 +63,11 @@ void main(){
   vec2 m = (uMouse - 0.5) * 0.12;
   float t = uTime;
 
-  vec2 pp = p * uScale + m;
+  // The pointer is a soft lens: the caustics under it are magnified a little and lifted.
+  vec2 lq = (gl_FragCoord.xy - uMouse * uRes) / mn;
+  float lens = uLens * smoothstep(0.34, 0.0, length(lq));
+
+  vec2 pp = p * uScale + m - lq * uScale * 0.22 * lens;
   float cr = caust(pp + vec2(0.007, 0.0), t);
   float cg = caust(pp, t);
   float cb = caust(pp - vec2(0.007, 0.0), t);
@@ -72,6 +77,7 @@ void main(){
   float pool = smoothstep(uPool.z, 0.0, length(q));
   pool *= pool;
   pool = mix(pool, 0.42 + 0.58 * pool, uSpread);
+  pool += lens * lens * 0.6 * (1.0 - 0.5 * pool);
 
   vec3 night = vec3(0.055, 0.059, 0.075);
   vec3 amber = vec3(0.941, 0.588, 0.165);

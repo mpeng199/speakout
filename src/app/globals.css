@@ -476,6 +476,35 @@ html.lenis body {
   margin: 0;
 }
 
+/* With a mouse or trackpad a label leans toward the pointer and a sheen follows it across the
+   paper (tilt() in motion/setup.ts sets the angle and the sheen position). Touch keeps flat labels. */
+@media (hover: hover) and (pointer: fine) {
+  :has(> .label-card) {
+    perspective: 60rem;
+  }
+  .label-card::after {
+    content: "";
+    position: absolute;
+    inset: -0.375rem 0 0; /* the amber strip (top border) catches it too */
+    z-index: 2;
+    border-radius: inherit;
+    pointer-events: none;
+    /* Warm light where the pointer is; the far side, tilted away, falls a little into shadow. */
+    background: radial-gradient(
+      circle 20rem at var(--sheen-x, 50%) var(--sheen-y, 50%),
+      rgb(255 238 208 / 0.6),
+      rgb(255 238 208 / 0.14) 30%,
+      rgb(255 238 208 / 0) 55%,
+      rgb(14 15 19 / 0.1)
+    );
+    opacity: 0;
+    transition: opacity 0.6s var(--ease-out);
+  }
+  .label-card.is-lit::after {
+    opacity: 1;
+  }
+}
+
 /* ───────────────────────────── Hero intro (CSS only, under 1.5 s, never blocks) ───────────────────────────── */
 
 .mask-line {

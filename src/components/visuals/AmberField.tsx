@@ -122,10 +122,28 @@ export function AmberField({ variant = "hero", id, className = "" }: { variant?:
       }
     };
 
-    const onPointer = (e: PointerEvent) => {
+    // With a mouse or trackpad the pointer also carries a soft lens over the light. It is aimed
+    // again on every frame, so it stays under the pointer while the page scrolls beneath it.
+    const fine = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    const pointer = { x: 0, y: 0, on: false };
+    const lens = { v: 0, t: 0 };
+    const aim = () => {
       const r = canvas.getBoundingClientRect();
-      mouse.tx = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
-      mouse.ty = Math.min(1, Math.max(0, 1 - (e.clientY - r.top) / r.height));
+      const x = (pointer.x - r.left) / r.width;
+      const y = 1 - (pointer.y - r.top) / r.height;
+      mouse.tx = Math.min(1, Math.max(0, x));
+      mouse.ty = Math.min(1, Math.max(0, y));
+      lens.t = fine && pointer.on && x >= 0 && x <= 1 && y >= 0 && y <= 1 ? 1 : 0;
+    };
+    const onPointer = (e: PointerEvent) => {
+      pointer.x = e.clientX;
+      pointer.y = e.clientY;
+      pointer.on = e.pointerType !== "touch";
+      aim();
+    };
+    const onLeave = () => {
+      pointer.on = false;
+      lens.t = 0;
     };
 
     const resize = () => {
@@ -205,6 +223,7 @@ export function AmberField({ variant = "hero", id, className = "" }: { variant?:
           gain: gl.getUniformLocation(program, "uGain"),
           spread: gl.getUniformLocation(program, "uSpread"),
           scale: gl.getUniformLocation(program, "uScale"),
+          lens: gl.getUniformLocation(program, "uLens"),
         };
         started = now;
       }
@@ -216,8 +235,10 @@ export function AmberField({ variant = "hero", id, className = "" }: { variant?:
       lastDraw = now;
       if (frozen) return;
       resize();
+      if (pointer.on) aim();
       mouse.x += (mouse.tx - mouse.x) * 0.045;
       mouse.y += (mouse.ty - mouse.y) * 0.045;
+      lens.v += (lens.t - lens.v) * 0.06;
       const p = controller.params;
       const introT = preset.introMs && !reduce ? Math.min(1, (now - started) / preset.introMs) : 1;
       const intro = 1 - Math.pow(1 - introT, 3);
@@ -229,6 +250,7 @@ export function AmberField({ variant = "hero", id, className = "" }: { variant?:
       gl.uniform1f(u.gain, p.gain);
       gl.uniform1f(u.spread, p.spread);
       gl.uniform1f(u.scale, p.scale);
+      gl.uniform1f(u.lens, lens.v);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
       if (firstFrame) {
         firstFrame = false;
@@ -319,7 +341,10 @@ export function AmberField({ variant = "hero", id, className = "" }: { variant?:
         if (check()) raf = requestAnimationFrame(draw);
       };
       waitForCompile();
-      if (!reduce && !coarse) window.addEventListener("pointermove", onPointer, { passive: true });
+      if (!reduce && !coarse) {
+        window.addEventListener("pointermove", onPointer, { passive: true });
+        document.documentElement.addEventListener("pointerleave", onLeave);
+      }
     };
 
     // The browser can take the GL context away (iOS under memory pressure, a GPU reset). Cancelling
@@ -434,6 +459,7 @@ export function AmberField({ variant = "hero", id, className = "" }: { variant?:
       window.removeEventListener("pointermove", onPointer);
       canvas.removeEventListener("webglcontextlost", onContextLost);
       canvas.removeEventListener("webglcontextrestored", onContextRestored);
+      document.documentElement.removeEventListener("pointerleave", onLeave);
       document.removeEventListener("visibilitychange", onVisibility);
       const cic = (window as Window & { cancelIdleCallback?: (id: number) => void }).cancelIdleCallback;
       if (cic) cic(idleId);
