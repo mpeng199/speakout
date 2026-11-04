@@ -61,7 +61,8 @@ function smoothAnchors(reduce: boolean) {
     history.pushState(null, "", url.hash);
     const go = () => {
       if (lenis && !reduce) {
-        lenis.scrollTo(target, { offset: url.hash === "#top" ? 0 : -navHeight() + 1, duration: 1.2, onComplete: focusTarget });
+        // No extra offset: Lenis already honours the target's scroll-margin-top (the nav height, see globals.css).
+        lenis.scrollTo(target, { duration: 1.2, onComplete: focusTarget });
       } else {
         window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - navHeight(), behavior: "auto" });
         focusTarget();
