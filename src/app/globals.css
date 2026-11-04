@@ -107,21 +107,15 @@ html.lenis body {
   font-kerning: normal;
 }
 
-/* Optical margin alignment: large type is nudged left so its stems line up
-   with the text below (side bearings grow with the type size). */
-.t-hero {
-  margin-inline-start: -0.055em;
-}
-.t-d1 {
-  margin-inline-start: -0.04em;
-}
-
+/* Display sizes carry optical margin alignment: large type is nudged left so
+   its stems line up with the text below (side bearings grow with the size). */
 .t-hero {
   font-weight: 500;
   font-stretch: 112%;
   font-size: clamp(2.875rem, 0.55rem + 9.6vw, 8.5rem);
   line-height: 0.9;
   letter-spacing: -0.05em;
+  margin-inline-start: -0.055em;
 }
 
 .t-d1 {
@@ -130,6 +124,7 @@ html.lenis body {
   font-size: clamp(2.25rem, 1.15rem + 4.8vw, 5.25rem);
   line-height: 0.95;
   letter-spacing: -0.045em;
+  margin-inline-start: -0.04em;
 }
 
 .t-d2 {
@@ -941,9 +936,9 @@ html.lenis body {
 }
 .topic {
   position: relative;
+  isolation: isolate;
   padding-block: clamp(1.75rem, 3.2vw, 2.75rem);
   border-bottom: 1px solid var(--night-line);
-  transition: background-color 0.5s var(--ease-out);
 }
 .topic::before {
   content: "";
@@ -955,14 +950,10 @@ html.lenis body {
   transition: transform 0.6s var(--ease-out);
   z-index: -1;
 }
-.topic {
-  isolation: isolate;
-}
 @media (hover: hover) {
   .topic:hover::before {
     transform: scaleY(1);
   }
-  .topic:hover .topic-example,
   .topic:hover .t-label {
     color: var(--color-night);
   }
@@ -980,9 +971,6 @@ html.lenis body {
   .topic:hover .topic-dot {
     background: var(--color-night);
   }
-}
-.topic-example {
-  color: var(--night-3);
 }
 
 /* ───────────────────────────── Event cards ───────────────────────────── */
