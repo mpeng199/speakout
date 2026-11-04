@@ -179,6 +179,15 @@ export function AmberField({ variant = "hero", id, className = "" }: { variant?:
       if (firstFrame) {
         firstFrame = false;
         canvas.classList.add("is-ready");
+        // Once the live light has faded in, free the still underneath it.
+        window.setTimeout(() => {
+          if (disposed || !photo) return;
+          photo.width = 0;
+          photo.height = 0;
+          photo.classList.remove("is-ready");
+          bitmap?.close();
+          bitmap = null;
+        }, 1600);
       }
       if (!reduce && visible && !document.hidden) raf = requestAnimationFrame(draw);
     };
@@ -304,7 +313,9 @@ export function AmberField({ variant = "hero", id, className = "" }: { variant?:
     const intents = ["pointermove", "pointerdown", "touchstart", "wheel", "scroll", "keydown"] as const;
     const removeIntent = () => intents.forEach((t) => window.removeEventListener(t, want));
     let photoIdle = 0;
-    if (reduce) {
+    // Everyone gets the pre-rendered light shortly after load, so the hero is
+    // never just a soft glow while waiting for the live shader.
+    if (photo) {
       const later = () => {
         const ric = (window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number }).requestIdleCallback;
         photoIdle = ric ? ric(() => loadPhoto(), { timeout: 2000 }) : window.setTimeout(() => loadPhoto(), 300);
