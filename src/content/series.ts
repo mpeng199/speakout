@@ -198,16 +198,16 @@ export const faq: { question: string; answer: string }[] = [
   {
     question: "Do I need a science background?",
     answer:
-      "No. Talks are made for people with no science training, and no question is too basic. If you are curious about how medicine works, you are in the right place.",
+      "No. Talks are made for people with no science training, and no question is too basic. If you’re curious about how medicine works, you’re in the right place.",
   },
   {
     question: "How do I RSVP?",
     answer:
-      "Each event has an RSVP button once registration opens. If it is not open yet, join the mailing list and we will email you when it is.",
+      "Each event has an RSVP button once registration opens. If it isn’t open yet, join the mailing list and we’ll email you when it is.",
   },
   {
     question: "Can I suggest a topic?",
-    answer: `Yes, please do. Email ${site.contactEmail} with a question you would like answered, and we will look for a researcher who can answer it.`,
+    answer: `Yes, please do. Email ${site.contactEmail} with a question you’d like answered, and we’ll look for a researcher who can answer it.`,
   },
 ];
 
@@ -216,7 +216,7 @@ export const faq: { question: string; answer: string }[] = [
 export const copy = {
   hero: {
     eyebrow: "Free evening talks on medicine",
-    sub: "A free evening series in New York City. A researcher talks for 10 to 15 minutes, without slides. Then the room asks questions.",
+    sub: "Each evening, a researcher talks for 10 to 15 minutes, without slides. Then the room asks the questions.",
     cta: "Get on the list",
     secondary: "How an evening works",
   },
@@ -246,7 +246,7 @@ export const copy = {
       },
       {
         title: "The talk",
-        text: "A researcher talks for 10 to 15 minutes about one idea in medicine. There are no slides, so it is just a person explaining their work.",
+        text: "A researcher talks for 10 to 15 minutes about one idea in medicine. There are no slides. It’s just a person explaining their work.",
         facts: ["10–15 min", "No slides"],
       },
       {
@@ -274,14 +274,14 @@ export const copy = {
     label: "Speakers",
     title: "Speakers",
     empty: "Speakers announced soon.",
-    emptyNote: "We only list researchers once they have confirmed.",
+    emptyNote: "We list researchers here once they’ve confirmed.",
   },
 
   researchers: {
     label: "For researchers",
     title: "Give a talk",
     pitch:
-      "Explain your work to a room of curious New Yorkers. It is short, there are no slides to prepare, and we take care of everything else.",
+      "Explain your work to a room of curious New Yorkers. It’s short, there are no slides to prepare, and we take care of everything else.",
     terms: [
       { term: "Talk", detail: "10 to 15 minutes, on one idea" },
       { term: "Slides", detail: "None. Just you and the room" },

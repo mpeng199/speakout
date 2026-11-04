@@ -191,6 +191,12 @@ html.lenis body {
 .balance {
   text-wrap: balance;
 }
+/* No lone words on the last line of running text */
+.t-lead,
+.t-body,
+.t-small {
+  text-wrap: pretty;
+}
 .pretty {
   text-wrap: pretty;
 }
