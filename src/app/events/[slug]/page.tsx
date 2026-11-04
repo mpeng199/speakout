@@ -132,7 +132,7 @@ export default async function EventPage({ params }: PageProps<"/events/[slug]">)
               </p>
               <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-4 intro-fade" style={{ "--d": 180 } as React.CSSProperties}>
                 {event.rsvpUrl && !isPast ? (
-                  <a href={event.rsvpUrl} className="btn btn-amber magnetic" data-magnetic="0.3" target="_blank" rel="noopener noreferrer">
+                  <a href={event.rsvpUrl} className="btn btn-amber btn-wrap magnetic w-full sm:w-auto" data-magnetic="0.3" target="_blank" rel="noopener noreferrer">
                     <span className="magnetic-inner">
                       <span>RSVP</span>
                       <span className="arrow" aria-hidden="true">
@@ -142,7 +142,7 @@ export default async function EventPage({ params }: PageProps<"/events/[slug]">)
                     <span className="sr-only"> (opens in a new tab)</span>
                   </a>
                 ) : (
-                  <a href="#signup" className="btn btn-amber magnetic" data-magnetic="0.3">
+                  <a href="#signup" className="btn btn-amber btn-wrap magnetic w-full sm:w-auto" data-magnetic="0.3">
                     <span className="magnetic-inner">
                       <span>{isPast ? "Hear about the next one" : "Get notified when RSVP opens"}</span>
                       <span className="arrow-down" aria-hidden="true">
