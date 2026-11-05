@@ -120,7 +120,8 @@ html.lenis body {
   font-weight: 500;
   font-stretch: 112%;
   /* The floor lets "New medicine," fit a 320px screen (and 400% zoom); from ~390px up it is unchanged. */
-  font-size: clamp(2.25rem, 0.55rem + 9.6vw, 8.5rem);
+  /* The vw cap only binds when the reader has enlarged the browser's text size: then the longest line still fits. */
+  font-size: min(clamp(2.25rem, 0.55rem + 9.6vw, 8.5rem), 12.6vw);
   line-height: 0.9;
   letter-spacing: -0.05em;
   margin-inline-start: -0.055em;
@@ -129,7 +130,7 @@ html.lenis body {
 .t-d1 {
   font-weight: 500;
   font-stretch: 112%;
-  font-size: clamp(2.25rem, 1.15rem + 4.8vw, 5.25rem);
+  font-size: min(clamp(2.25rem, 1.15rem + 4.8vw, 5.25rem), 13.5vw);
   line-height: 0.95;
   letter-spacing: -0.045em;
   margin-inline-start: -0.04em;
@@ -1461,6 +1462,18 @@ html.menu-open {
 }
 .label-stack .event-card {
   transform-origin: 0 100%;
+}
+/* With enlarged text a card is narrower than its content: let it shrink to the column and let its
+   buttons wrap, instead of pushing the page sideways. No effect while everything fits. */
+.label-stack,
+.event-card,
+.event-card .label-card {
+  min-width: 0;
+  max-width: 100%;
+}
+.label-card .btn {
+  max-width: 100%;
+  white-space: normal;
 }
 @media (hover: hover) {
   .label-stack::before,
