@@ -522,6 +522,77 @@ function tilt() {
   };
 }
 
+/* ───────────────────────────── Cursor chip ───────────────────────────── */
+
+/** What a click does there. Topic rows say "Open" only if they ever link somewhere. */
+const CHIPS: [selector: string, label: string][] = [
+  [".event-card, .past-row, .hero-label:has(.card-link), .topic:has(a[href])", "Open"],
+  [".faq-item:not([open]) > summary", "Ask"],
+];
+
+/**
+ * Mouse and trackpad: a small amber dot keeps the pointer company and grows into a chip that says
+ * what a click does ("Open" on evenings, "Ask" on a closed question). The native cursor stays.
+ */
+function cursorChip() {
+  if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return () => {};
+  const chip = document.createElement("div");
+  chip.className = "cursor-chip";
+  chip.setAttribute("aria-hidden", "true");
+  chip.innerHTML = '<span class="cursor-chip-body t-label"><span class="cursor-chip-label"></span></span>';
+  const label = chip.querySelector<HTMLElement>(".cursor-chip-label")!;
+  document.body.append(chip);
+  const xTo = gsap.quickTo(chip, "x", { duration: 0.35, ease: "power3.out" });
+  const yTo = gsap.quickTo(chip, "y", { duration: 0.35, ease: "power3.out" });
+  const at = { x: 0, y: 0, on: false };
+  let frame = 0;
+
+  const name = (el: Element | null) => {
+    const text = CHIPS.find(([sel]) => el?.closest?.(sel))?.[1] ?? "";
+    // The old word stays while the chip shrinks back to a dot.
+    if (text) label.textContent = text;
+    chip.classList.toggle("has-label", !!text);
+  };
+  const move = (e: PointerEvent) => {
+    if (e.pointerType === "touch") return;
+    at.x = e.clientX;
+    at.y = e.clientY;
+    if (!at.on) {
+      at.on = true;
+      gsap.set(chip, { x: at.x, y: at.y });
+      chip.classList.add("is-on");
+    }
+    xTo(at.x);
+    yTo(at.y);
+    name(e.target as Element | null);
+  };
+  // Scrolling, or a question unfolding, changes what is under a pointer that has not moved.
+  const recheck = () => {
+    if (!at.on || frame) return;
+    frame = requestAnimationFrame(() => {
+      frame = 0;
+      name(document.elementFromPoint(at.x, at.y));
+    });
+  };
+  const hide = () => {
+    at.on = false;
+    chip.classList.remove("is-on", "has-label");
+  };
+  document.addEventListener("pointermove", move, { passive: true });
+  document.addEventListener("toggle", recheck, true);
+  window.addEventListener("scroll", recheck, { passive: true });
+  document.documentElement.addEventListener("pointerleave", hide);
+  return () => {
+    document.removeEventListener("pointermove", move);
+    document.removeEventListener("toggle", recheck, true);
+    window.removeEventListener("scroll", recheck);
+    document.documentElement.removeEventListener("pointerleave", hide);
+    cancelAnimationFrame(frame);
+    gsap.killTweensOf(chip);
+    chip.remove();
+  };
+}
+
 /* ───────────────────────────── The evening (pinned sequence) ───────────────────────────── */
 
 /**
@@ -721,6 +792,7 @@ export function setupMotion({ reduce }: { reduce: boolean }) {
         () => fitText(),
         () => magnetic(),
         () => tilt(),
+        () => cursorChip(),
         () => evening(),
         () => finale(),
         () => signupPill(),
