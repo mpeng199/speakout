@@ -22,7 +22,11 @@ function toLines(title: string): string[] {
     } else current = (current + " " + w).trim();
   }
   if (current) lines.push(current);
-  return lines.slice(0, 4);
+  if (lines.length <= 4) return lines;
+  // Too long for the image: end on an ellipsis instead of stopping mid-sentence.
+  const kept = lines.slice(0, 4);
+  kept[3] = kept[3].replace(/[\s,;:.\-–]+$/, "") + "…";
+  return kept;
 }
 
 export default async function Image({ params }: { params: Promise<{ slug: string }> }) {
