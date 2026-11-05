@@ -7,6 +7,26 @@ export async function generateStaticParams() {
 
 const esc = (s: string) => s.replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
 
+const utf8 = new TextEncoder();
+/** RFC 5545: lines are at most 75 octets; longer ones continue on the next line after a space (never inside a character). */
+const fold = (line: string) => {
+  const parts: string[] = [];
+  let part = "";
+  let octets = 0;
+  for (const ch of line) {
+    const n = utf8.encode(ch).length;
+    if (octets + n > (parts.length ? 74 : 75)) {
+      parts.push(part);
+      part = "";
+      octets = 0;
+    }
+    part += ch;
+    octets += n;
+  }
+  parts.push(part);
+  return parts.join("\r\n ");
+};
+
 /** An .ics file so people can add an evening to their calendar. */
 export async function GET(_req: Request, { params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -34,7 +54,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ slug: s
     "END:VEVENT",
     "END:VCALENDAR",
   ];
-  return new Response(lines.join("\r\n") + "\r\n", {
+  return new Response(lines.map(fold).join("\r\n") + "\r\n", {
     headers: {
       "Content-Type": "text/calendar; charset=utf-8",
       "Content-Disposition": `attachment; filename="${site.name.toLowerCase()}-${event.slug}.ics"`,

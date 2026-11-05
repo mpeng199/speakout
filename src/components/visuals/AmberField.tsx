@@ -72,6 +72,8 @@ export function AmberField({ variant = "hero", id, className = "" }: { variant?:
     const frameGap = coarse ? 1000 / 30 : 1000 / 60;
     let u: Record<string, WebGLUniformLocation | null> = {};
     let program: WebGLProgram | null = null;
+    // True once the program is linked and in use; frames before that (or after a lost context) would draw into nothing.
+    let ready = false;
     let ext: { COMPLETION_STATUS_KHR: number } | null = null;
     // Adaptive quality: where the GPU can't keep up, the canvas first gets smaller, then the
     // still light takes over. A frame-rate cap (battery saver, 30 Hz) is not counted as slow.
@@ -183,7 +185,7 @@ export function AmberField({ variant = "hero", id, className = "" }: { variant?:
     };
 
     const draw = (now: number) => {
-      if (disposed || frozen || !gl || !program) return;
+      if (disposed || frozen || !gl || !program || !ready) return;
       // Fully covered by the next section (sticky hero): idle cheaply until uncovered.
       if (wrap.closest("[data-covered]")) {
         raf = window.setTimeout(() => requestAnimationFrame(draw), 250) as unknown as number;
@@ -245,7 +247,9 @@ export function AmberField({ variant = "hero", id, className = "" }: { variant?:
     };
 
     const start = () => {
-      if (disposed) return;
+      // Once only: a start queued by the first user gesture can land after a restore has already started it.
+      if (disposed || program) return;
+      ready = false;
       gl = canvas.getContext("webgl", {
         antialias: false,
         alpha: false,
@@ -303,6 +307,7 @@ export function AmberField({ variant = "hero", id, className = "" }: { variant?:
         const loc = gl.getAttribLocation(program, "p");
         gl.enableVertexAttribArray(loc);
         gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+        ready = true;
         return true;
       };
       const waitForCompile = () => {
@@ -317,11 +322,33 @@ export function AmberField({ variant = "hero", id, className = "" }: { variant?:
       if (!reduce && !coarse) window.addEventListener("pointermove", onPointer, { passive: true });
     };
 
+    // The browser can take the GL context away (iOS under memory pressure, a GPU reset). Cancelling
+    // the event lets it hand the context back; the light is rebuilt then, and the pre-rendered light
+    // holds the place meanwhile. Deliberate losses (falling back, unmounting) are left alone.
+    const onContextLost = (e: Event) => {
+      if (disposed || frozen) return;
+      e.preventDefault();
+      cancelAnimationFrame(raf);
+      program = null;
+      ready = false;
+      canvas.classList.remove("is-ready");
+      photoWanted = false;
+      loadPhoto();
+    };
+    const onContextRestored = () => {
+      if (disposed || frozen) return;
+      firstFrame = true;
+      u = {};
+      start();
+    };
+    canvas.addEventListener("webglcontextlost", onContextLost);
+    canvas.addEventListener("webglcontextrestored", onContextRestored);
+
     const io = new IntersectionObserver(
       ([entry]) => {
         const was = visible;
         visible = entry.isIntersecting;
-        if (visible && !was && program && !reduce) {
+        if (visible && !was && program && ready && !reduce) {
           cancelAnimationFrame(raf);
           raf = requestAnimationFrame(draw);
         }
@@ -337,7 +364,7 @@ export function AmberField({ variant = "hero", id, className = "" }: { variant?:
     ro.observe(canvas);
 
     const onVisibility = () => {
-      if (!document.hidden && visible && program && !reduce) {
+      if (!document.hidden && visible && program && ready && !reduce) {
         cancelAnimationFrame(raf);
         raf = requestAnimationFrame(draw);
       }
@@ -405,6 +432,8 @@ export function AmberField({ variant = "hero", id, className = "" }: { variant?:
       window.clearTimeout(photoIdle);
       bitmap?.close();
       window.removeEventListener("pointermove", onPointer);
+      canvas.removeEventListener("webglcontextlost", onContextLost);
+      canvas.removeEventListener("webglcontextrestored", onContextRestored);
       document.removeEventListener("visibilitychange", onVisibility);
       const cic = (window as Window & { cancelIdleCallback?: (id: number) => void }).cancelIdleCallback;
       if (cic) cic(idleId);

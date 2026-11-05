@@ -346,15 +346,19 @@ html.lenis body {
   background: var(--color-amber);
   color: var(--color-night);
 }
-.btn-amber:hover {
-  box-shadow: 0 0 0 1px var(--color-amber), 0 14px 40px -12px rgb(240 150 42 / 0.65);
+@media (hover: hover) {
+  .btn-amber:hover {
+    box-shadow: 0 0 0 1px var(--color-amber), 0 14px 40px -12px rgb(240 150 42 / 0.65);
+  }
 }
 .btn-night {
   background: var(--color-night);
   color: var(--color-paper);
 }
-.btn-night:hover {
-  box-shadow: 0 14px 40px -14px rgb(14 15 19 / 0.55);
+@media (hover: hover) {
+  .btn-night:hover {
+    box-shadow: 0 14px 40px -14px rgb(14 15 19 / 0.55);
+  }
 }
 .btn-ghost {
   background: transparent;
@@ -365,22 +369,28 @@ html.lenis body {
   display: inline-block;
   transition: transform 0.45s var(--ease-out);
 }
-.btn:hover .arrow {
-  transform: translate(0.18em, -0.18em);
+@media (hover: hover) {
+  .btn:hover .arrow {
+    transform: translate(0.18em, -0.18em);
+  }
 }
 .btn .arrow-right {
   display: inline-block;
   transition: transform 0.45s var(--ease-out);
 }
-.btn:hover .arrow-right {
-  transform: translateX(0.22em);
+@media (hover: hover) {
+  .btn:hover .arrow-right {
+    transform: translateX(0.22em);
+  }
 }
 .btn .arrow-down {
   display: inline-block;
   transition: transform 0.45s var(--ease-out);
 }
-.btn:hover .arrow-down {
-  transform: translateY(0.2em);
+@media (hover: hover) {
+  .btn:hover .arrow-down {
+    transform: translateY(0.2em);
+  }
 }
 .btn[aria-disabled="true"] {
   cursor: default;
@@ -411,9 +421,11 @@ html.lenis body {
   padding-bottom: 0.08em;
   transition: background-size 0.5s var(--ease-out);
 }
-.link:hover {
-  background-size: 0% 1px;
-  background-position: 100% 100%;
+@media (hover: hover) {
+  .link:hover {
+    background-size: 0% 1px;
+    background-position: 100% 100%;
+  }
 }
 .link-draw {
   background-image: linear-gradient(currentColor, currentColor);
@@ -423,9 +435,13 @@ html.lenis body {
   padding-bottom: 0.08em;
   transition: background-size 0.5s var(--ease-out);
 }
-.link-draw:hover,
 .link-draw:focus-visible {
   background-size: 100% 1px;
+}
+@media (hover: hover) {
+  .link-draw:hover {
+    background-size: 100% 1px;
+  }
 }
 
 /* ───────────────────────────── Label (prescription label system) ───────────────────────────── */
@@ -718,8 +734,10 @@ html.lenis body {
   opacity: 0.8;
   transition: opacity 0.3s var(--ease-out), background-size 0.5s var(--ease-out);
 }
-.site-nav-links a:hover {
-  opacity: 1;
+@media (hover: hover) {
+  .site-nav-links a:hover {
+    opacity: 1;
+  }
 }
 .site-nav-cta {
   display: inline-flex;
@@ -731,8 +749,10 @@ html.lenis body {
   color: var(--color-night);
   transition: box-shadow 0.35s var(--ease-out);
 }
-.site-nav-cta:hover {
-  box-shadow: 0 10px 30px -10px rgb(240 150 42 / 0.7);
+@media (hover: hover) {
+  .site-nav-cta:hover {
+    box-shadow: 0 10px 30px -10px rgb(240 150 42 / 0.7);
+  }
 }
 .site-nav-menu {
   display: none;
