@@ -632,6 +632,45 @@ function pinEvening() {
   };
 }
 
+/* ───────────────────────────── The light behind the signup ───────────────────────────── */
+
+/**
+ * The finale light answers the signup form (SignupForm sends "speakout:signup" cues): focusing the
+ * email field turns the pool up, each keystroke sends a small pulse through it, and signing up
+ * flares it before it settles a little warmer than before. The field is only mounted while the
+ * signup is near the screen, so it is looked up on every cue.
+ */
+function finale() {
+  let focused = false;
+  let done = false;
+  const onCue = (e: Event) => {
+    const field = amberRegistry.get("finale");
+    const cue = (e as CustomEvent<string>).detail;
+    if (done || !field) return;
+    const p = field.params;
+    const base = field.preset();
+    const lit = () => ({ gain: base.gain * (focused ? 1.55 : 1), r: base.r * (focused ? 1.12 : 1) });
+    if (cue === "focus" || cue === "blur") {
+      focused = cue === "focus";
+      gsap.to(p, { ...lit(), duration: 0.9, ease: "power2.out", overwrite: "auto" });
+    } else if (cue === "key") {
+      const to = lit();
+      gsap
+        .timeline()
+        .to(p, { gain: to.gain + 0.22, r: to.r * 1.04, duration: 0.08, ease: "power2.out", overwrite: "auto" })
+        .to(p, { ...to, duration: 0.7, ease: "power2.out" });
+    } else if (cue === "done") {
+      done = true;
+      gsap
+        .timeline()
+        .to(p, { gain: 2.3, r: base.r * 1.75, spread: 0.55, scale: base.scale * 0.85, duration: 0.45, ease: "power3.out", overwrite: "auto" })
+        .to(p, { gain: base.gain * 1.25, r: base.r * 1.2, spread: 0.12, scale: base.scale, duration: 2.6, ease: "power2.inOut" });
+    }
+  };
+  window.addEventListener("speakout:signup", onCue);
+  return () => window.removeEventListener("speakout:signup", onCue);
+}
+
 /* ───────────────────────────── Fit text (footer wordmark) ───────────────────────────── */
 
 function fitText() {
@@ -683,6 +722,7 @@ export function setupMotion({ reduce }: { reduce: boolean }) {
         () => magnetic(),
         () => tilt(),
         () => evening(),
+        () => finale(),
         () => signupPill(),
         () => heroStack(reduce),
         () => parallax(),

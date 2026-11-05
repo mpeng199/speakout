@@ -14,7 +14,7 @@ export type AmberParams = {
   scale: number;
 };
 
-type Variant = "hero" | "evening" | "page";
+type Variant = "hero" | "evening" | "page" | "finale";
 
 const PRESETS: Record<Variant, { wide: AmberParams; tall: AmberParams; introMs: number }> = {
   hero: {
@@ -30,6 +30,12 @@ const PRESETS: Record<Variant, { wide: AmberParams; tall: AmberParams; introMs: 
   page: {
     wide: { x: 0.8, y: 0.4, r: 0.95, gain: 0.9, spread: 0, scale: 2.4 },
     tall: { x: 0.7, y: 0.32, r: 0.9, gain: 0.85, spread: 0, scale: 2.1 },
+    introMs: 0,
+  },
+  // Behind the signup: a lower pool under the form, which the form turns up (see finale() in motion/setup.ts).
+  finale: {
+    wide: { x: 0.74, y: 0.36, r: 0.9, gain: 0.75, spread: 0, scale: 2.3 },
+    tall: { x: 0.6, y: 0.22, r: 1.0, gain: 0.9, spread: 0, scale: 2.1 },
     introMs: 0,
   },
 };

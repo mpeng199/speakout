@@ -4,6 +4,9 @@ import { useId, useRef, useState } from "react";
 
 type Status = "idle" | "sending" | "done" | "preview" | "error";
 
+/** Lets the light behind the signup answer the form (finale() in motion/setup.ts). */
+const cue = (detail: "focus" | "blur" | "key" | "done") => window.dispatchEvent(new CustomEvent("speakout:signup", { detail }));
+
 /**
  * Mailing list signup posted to Formspree. Works without JavaScript too: the
  * form then submits straight to Formspree.
@@ -48,6 +51,7 @@ export function SignupForm({
       // Not connected yet: show the success state so the flow can be reviewed.
       await new Promise((r) => setTimeout(r, 650));
       setStatus("preview");
+      cue("done");
       requestAnimationFrame(() => statusRef.current?.focus());
       return;
     }
@@ -56,6 +60,7 @@ export function SignupForm({
       const res = await fetch(endpoint, { method: "POST", body: data, headers: { Accept: "application/json" } });
       if (res.ok) {
         setStatus("done");
+        cue("done");
         form.reset();
         requestAnimationFrame(() => statusRef.current?.focus());
       } else {
@@ -114,6 +119,9 @@ export function SignupForm({
               className="signup-input"
               aria-invalid={status === "error" ? true : undefined}
               aria-describedby={status === "error" ? errorId : undefined}
+              onFocus={() => cue("focus")}
+              onBlur={() => cue("blur")}
+              onInput={() => cue("key")}
             />
             <input type="text" name="_gotcha" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
             <input type="hidden" name="_subject" value="New mailing list signup" />

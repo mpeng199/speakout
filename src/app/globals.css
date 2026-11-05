@@ -1273,6 +1273,48 @@ html.lenis body {
   transform: rotate(45deg);
 }
 
+/* The light comes back behind the signup (FinaleLight): from the panel's rounded top edge, full
+   bleed, to a little below the form, where it fades into the panel. Empty until it nears the screen. */
+.finale {
+  position: relative;
+}
+.finale-light {
+  position: absolute;
+  z-index: -1;
+  top: calc(var(--section-y) * -1);
+  bottom: -8rem;
+  left: calc(50% - 50vw);
+  width: 100vw;
+  border-radius: var(--sheet-r) var(--sheet-r) 0 0;
+  overflow: hidden;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(180deg, #000 calc(100% - 14rem), transparent);
+  mask-image: linear-gradient(180deg, #000 calc(100% - 14rem), transparent);
+}
+.finale-shade {
+  position: absolute;
+  inset: 0;
+  /* The headline keeps the dark side, as in the hero. */
+  background-image: linear-gradient(100deg, rgb(14 15 19 / 0.88) 0%, rgb(14 15 19 / 0.5) 40%, rgb(14 15 19 / 0) 68%);
+}
+@media (max-width: 63.99rem) {
+  .finale-shade {
+    background-image: linear-gradient(180deg, rgb(14 15 19 / 0.86) 0%, rgb(14 15 19 / 0.55) 40%, rgb(14 15 19 / 0.1) 75%);
+  }
+}
+/* The form casts a soft shadow in the light, so the email and the small print stay readable over the brightest caustics. */
+.finale .signup {
+  position: relative;
+}
+.finale .signup::before {
+  content: "";
+  position: absolute;
+  inset: -3rem -3rem -3.5rem;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(closest-side, rgb(14 15 19 / 0.72), rgb(14 15 19 / 0.45) 60%, rgb(14 15 19 / 0));
+}
+
 /* Phones: a compact "Get on the list" that waits at the bottom of the screen once the hero has gone
    by (signupPill() in motion/setup.ts shows it). Fixed, so it never moves the page; positioned from
    the bottom edge above the home indicator, so it rides with Safari's toolbar instead of under it.

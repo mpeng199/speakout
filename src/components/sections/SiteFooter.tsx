@@ -1,6 +1,7 @@
 import { copy, site } from "@/content/series";
 import { isPlaceholder, isSet, mailto } from "@/lib/content";
 import { SignupForm } from "@/components/SignupForm";
+import { FinaleLight } from "@/components/visuals/FinaleLight";
 import { Ph } from "@/components/ui/Text";
 
 export function SiteFooter() {
@@ -11,7 +12,8 @@ export function SiteFooter() {
   return (
     <footer id="signup" aria-labelledby="signup-title" data-nav-theme="night" className="panel panel-dark site-footer">
       <div className="wrap">
-        <div className="grid-12 gap-y-10">
+        <div className="finale grid-12 gap-y-10">
+          <FinaleLight />
           <div className="col-span-12 lg:col-span-6">
             <p className="t-label eyebrow">Mailing list</p>
             <h2 id="signup-title" className="t-hero balance mt-6" data-reveal="lines">
