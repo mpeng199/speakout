@@ -27,6 +27,9 @@ const fold = (line: string) => {
   return parts.join("\r\n ");
 };
 
+/** DTSTAMP is when the file was generated (RFC 5545), not when the evening starts: the build time, as the file is prerendered. */
+const generatedAt = Date.now();
+
 /** An .ics file so people can add an evening to their calendar. */
 export async function GET(_req: Request, { params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -44,7 +47,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ slug: s
     "METHOD:PUBLISH",
     "BEGIN:VEVENT",
     `UID:${event.slug}@${new URL(siteUrl()).host}`,
-    `DTSTAMP:${stamp(event.startTs)}`,
+    `DTSTAMP:${stamp(generatedAt)}`,
     `DTSTART:${stamp(event.startTs)}`,
     `DTEND:${stamp(event.endTs)}`,
     `SUMMARY:${esc(title)}`,
