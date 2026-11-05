@@ -788,7 +788,15 @@ html.lenis body {
 .site-menu::backdrop {
   background: rgb(14 15 19 / 0.6);
 }
+.site-menu:not([open]) {
+  display: none;
+}
 .site-menu[open] {
+  /* A modal dialog is already fixed and on top; these two keep the menu a full-screen overlay
+     in browsers without <dialog> support, where it is opened with the open attribute. */
+  position: fixed;
+  inset: 0;
+  z-index: 60;
   animation: menu-in 0.45s var(--ease-out) both;
 }
 .site-menu.is-closing {

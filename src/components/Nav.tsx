@@ -15,16 +15,28 @@ export function Nav({ name, links, cta }: { name: string; links: NavLink[]; cta:
 
   const close = useCallback(() => {
     const d = dialogRef.current;
-    if (!d || !d.open) return;
+    if (!d || !d.hasAttribute("open")) return;
     d.classList.add("is-closing");
     window.setTimeout(() => {
       d.classList.remove("is-closing");
-      d.close();
+      if (typeof d.close === "function") d.close();
+      else {
+        // No <dialog> support (Safari before 15.4, Firefox before 98): close it by hand.
+        d.removeAttribute("open");
+        d.dispatchEvent(new Event("close"));
+      }
     }, 260);
   }, []);
 
   const show = useCallback(() => {
-    dialogRef.current?.showModal();
+    const d = dialogRef.current;
+    if (!d) return;
+    if (typeof d.showModal === "function") d.showModal();
+    else {
+      // No <dialog> support: open it as a plain full-screen overlay (see .site-menu in globals.css).
+      d.setAttribute("open", "");
+      d.querySelector<HTMLElement>(".site-menu-close")?.focus();
+    }
     setOpen(true);
     document.documentElement.classList.add("menu-open");
     // Pause smooth scrolling so the page behind the menu stays put.
@@ -44,11 +56,17 @@ export function Nav({ name, links, cta }: { name: string; links: NavLink[]; cta:
       e.preventDefault();
       close();
     };
+    // A real modal dialog closes itself on Escape (the cancel event); the plain overlay needs this.
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && typeof d.showModal !== "function") close();
+    };
     d.addEventListener("close", onClose);
     d.addEventListener("cancel", onCancel);
+    document.addEventListener("keydown", onKey);
     return () => {
       d.removeEventListener("close", onClose);
       d.removeEventListener("cancel", onCancel);
+      document.removeEventListener("keydown", onKey);
     };
   }, [close]);
 
