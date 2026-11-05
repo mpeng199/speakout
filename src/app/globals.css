@@ -848,6 +848,45 @@ html.lenis body {
   margin-top: auto;
   width: 100%;
 }
+/* Without JavaScript the Menu button cannot open the dialog. The link beside it points at the dialog's
+   address instead, and the menu shows as an overlay while that address is the page's target; picking a
+   section, or Close, changes the address and so closes it. Browsers that don't know (scripting: none)
+   skip this block and keep the button. */
+.site-nav-menu-link,
+.site-menu-close-link {
+  display: none;
+}
+@media (scripting: none) {
+  .site-menu-close {
+    display: none;
+  }
+  .site-menu-close-link {
+    display: inline-block;
+    padding: 0.85rem 0;
+  }
+  .site-menu:target {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    overflow-y: auto;
+    animation: menu-in 0.45s var(--ease-out) both;
+  }
+  .site-menu:target .site-menu-links li {
+    animation: fade-up 0.6s var(--ease-out) both;
+    animation-delay: calc(var(--i) * 45ms + 80ms);
+  }
+}
+@media (scripting: none) and (max-width: 63.99rem) {
+  .site-nav-menu {
+    display: none;
+  }
+  .site-nav-menu-link {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.85rem 0;
+  }
+}
 @keyframes menu-in {
   from {
     opacity: 0;

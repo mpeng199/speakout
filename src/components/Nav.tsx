@@ -107,6 +107,10 @@ export function Nav({ name, links, cta }: { name: string; links: NavLink[]; cta:
           >
             Menu
           </button>
+          {/* Shown instead of the button when scripting is off (see globals.css): opens the menu by its address. */}
+          <a href="#site-menu" className="site-nav-menu-link t-label">
+            Menu
+          </a>
         </div>
       </header>
 
@@ -125,6 +129,9 @@ export function Nav({ name, links, cta }: { name: string; links: NavLink[]; cta:
             <button type="button" className="t-label site-menu-close" onClick={close}>
               Close
             </button>
+            <a href="#top" className="t-label site-menu-close-link">
+              Close
+            </a>
           </div>
           <nav aria-label="Menu">
             <ul className="site-menu-links">
