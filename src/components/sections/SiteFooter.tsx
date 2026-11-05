@@ -11,9 +11,10 @@ export function SiteFooter() {
 
   return (
     <footer id="signup" aria-labelledby="signup-title" data-nav-theme="night" className="panel panel-dark site-footer">
-      <div className="wrap">
-        <div className="finale grid-12 gap-y-10">
-          <FinaleLight />
+      <div className="finale">
+        <FinaleLight />
+        <div className="wrap">
+        <div className="grid-12 gap-y-10">
           <div className="col-span-12 lg:col-span-6">
             <p className="t-label eyebrow">Mailing list</p>
             <h2 id="signup-title" className="t-hero balance mt-6" data-reveal="lines">
@@ -33,7 +34,10 @@ export function SiteFooter() {
             />
           </div>
         </div>
+        </div>
+      </div>
 
+      <div className="wrap">
         <div className="grid-12 mt-[clamp(4.5rem,10vw,9rem)] gap-y-10 border-t border-[color:var(--paper-line)] pt-10">
           <div className="col-span-12 sm:col-span-6 lg:col-span-3">
             <h3 className="t-label text-[color:var(--paper-3)]">Contact</h3>

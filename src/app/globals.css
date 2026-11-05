@@ -1325,18 +1325,15 @@ html.lenis body {
   transform: rotate(45deg);
 }
 
-/* The light comes back behind the signup (FinaleLight): from the panel's rounded top edge, full
-   bleed, to a little below the form, where it fades into the panel. Empty until it nears the screen. */
+/* The light comes back behind the signup (FinaleLight): from the panel's rounded top edge, edge to
+   edge, to a little below the form, where it fades into the panel. Empty until it nears the screen. */
 .finale {
   position: relative;
 }
 .finale-light {
   position: absolute;
   z-index: -1;
-  top: calc(var(--section-y) * -1);
-  bottom: -8rem;
-  left: calc(50% - 50vw);
-  width: 100vw;
+  inset: calc(var(--section-y) * -1) 0 -8rem;
   border-radius: var(--sheet-r) var(--sheet-r) 0 0;
   overflow: hidden;
   pointer-events: none;
@@ -1354,17 +1351,26 @@ html.lenis body {
     background-image: linear-gradient(180deg, rgb(14 15 19 / 0.86) 0%, rgb(14 15 19 / 0.55) 40%, rgb(14 15 19 / 0.1) 75%);
   }
 }
-/* The form casts a soft shadow in the light, so the email and the small print stay readable over the brightest caustics. */
-.finale .signup {
+/* The form casts a soft shadow in the light, so the email and the small print stay readable over the
+   brightest caustics. It belongs to the form's column, whose edge next to the form never moves, so
+   the confirmation replacing the form does not drag the shadow (and a bigger layout shift) with it. */
+.finale :has(> .signup) {
   position: relative;
 }
-.finale .signup::before {
+.finale :has(> .signup)::before {
   content: "";
   position: absolute;
-  inset: -3rem -3rem -3.5rem;
   z-index: -1;
+  inset: -3rem calc(var(--margin) * -1) -3.5rem; /* sideways only to the page margin: never wider than the screen */
   pointer-events: none;
   background: radial-gradient(closest-side, rgb(14 15 19 / 0.72), rgb(14 15 19 / 0.45) 60%, rgb(14 15 19 / 0));
+}
+@media (min-width: 64rem) {
+  /* Beside the headline the column is as tall as the row and the form sits at its foot. */
+  .finale :has(> .signup)::before {
+    top: auto;
+    height: 17rem;
+  }
 }
 
 /* Phones: a compact "Get on the list" that waits at the bottom of the screen once the hero has gone
