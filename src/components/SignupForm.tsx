@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useRef, useState } from "react";
+import { useId, useRef, useState, type ReactNode } from "react";
 
 type Status = "idle" | "sending" | "done" | "preview" | "error";
 
@@ -22,9 +22,10 @@ type SignupWords = {
 
 /**
  * Mailing list signup posted to Formspree. Works without JavaScript too: the
- * form then submits straight to Formspree.
+ * form then submits straight to Formspree. The privacy line comes already
+ * rendered by the server (with any placeholder in it underlined).
  */
-export function SignupForm({ formId, privacyLine, words }: { formId: string | null; privacyLine: string; words: SignupWords }) {
+export function SignupForm({ formId, privacyLine, words }: { formId: string | null; privacyLine: ReactNode; words: SignupWords }) {
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
   const statusRef = useRef<HTMLDivElement>(null);

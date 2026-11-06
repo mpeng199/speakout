@@ -10,8 +10,10 @@
  *    1. Site settings   2. Speakers   3. Events   4. Topics   5. FAQ
  *    6. Wording (everything else, grouped by where it appears)
  *
- *  Placeholders are written in [square brackets]. The site shows them with a
- *  dashed underline so they are easy to spot. To list the ones that are left:
+ *  Placeholders are written in [square brackets], as a whole value or inside a
+ *  sentence ("Doors open at [time]"). The site shows each one with a dashed
+ *  underline so it is easy to spot; the link-preview images, which can't, say
+ *  "To be announced" instead. To list the ones that are left:
  *
  *      npm run placeholders
  *

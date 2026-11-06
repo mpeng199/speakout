@@ -13,10 +13,10 @@ export function Researchers() {
           <div className="col-span-12 lg:col-span-6">
             <p className="t-label eyebrow">{copy.researchers.label}</p>
             <h2 id="researchers-title" className="t-hero mt-6" data-reveal="lines">
-              {copy.researchers.title}
+              <Ph value={copy.researchers.title} />
             </h2>
             <p className="t-lead mt-8 max-w-[34ch] text-[color:var(--paper-2)]" data-reveal="fade">
-              {copy.researchers.pitch}
+              <Ph value={copy.researchers.pitch} />
             </p>
             <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-4" data-reveal="fade">
               {href ? (
@@ -51,8 +51,8 @@ export function Researchers() {
             <Label
               left={copy.researchers.termsLeft}
               right={copy.researchers.termsRight}
-              rows={copy.researchers.terms.map((t) => ({ term: t.term, detail: t.detail }))}
-              footer={copy.researchers.termsFooter}
+              rows={copy.researchers.terms.map((t) => ({ term: t.term, detail: <Ph value={t.detail} /> }))}
+              footer={<Ph value={copy.researchers.termsFooter} />}
             />
           </div>
         </div>

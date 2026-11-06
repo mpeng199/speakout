@@ -13,7 +13,7 @@ Everything the site says lives in one file: **`src/content/series.ts`**.
 - **Speakers**: only entries with `confirmed: true` appear on the site. Never add a name or photo without the researcher's permission.
 - **Topics, FAQ and wording**: every other word on the site, grouped by where it appears, down to buttons, the menu, screen-reader text and the link-preview images.
 
-Placeholders are written in `[square brackets]` and show on the site with a dashed underline. To list what is left:
+Placeholders are written in `[square brackets]`, as a whole value or inside a sentence, and show on the site with a dashed underline (the link-preview images say "To be announced" instead). To list what is left, wherever they are:
 
 ```bash
 npm run placeholders

@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { copy } from "@/content/series";
 import { confirmedSpeakers, fill } from "@/lib/content";
+import { Ph } from "@/components/ui/Text";
 
 function initials(name: string) {
   return name
@@ -24,11 +25,11 @@ export function Speakers() {
         {list.length === 0 ? (
           <div className="grid-12 mt-[clamp(2.5rem,6vw,5rem)] gap-y-8">
             <p className="t-hero col-span-12 lg:col-span-11" data-reveal="lines">
-              {copy.speakers.empty}
+              <Ph value={copy.speakers.empty} />
             </p>
             <div className="col-span-12 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between lg:col-span-11">
               <p className="t-lead max-w-[36ch] text-[color:var(--night-2)]" data-reveal="fade">
-                {copy.speakers.emptyNote}
+                <Ph value={copy.speakers.emptyNote} />
               </p>
               <a href="#researchers" className="t-label link self-start sm:self-auto sm:whitespace-nowrap">
                 {copy.speakers.researcherLink}
@@ -48,11 +49,15 @@ export function Speakers() {
                     <span className="t-d3">{initials(s.name)}</span>
                   </div>
                 )}
-                <h3 className="t-d3 mt-5">{s.name}</h3>
+                <h3 className="t-d3 mt-5">
+                  <Ph value={s.name} />
+                </h3>
                 <p className="t-small mt-1 text-[color:var(--night-2)]">
-                  {s.role}, {s.affiliation}
+                  <Ph value={s.role} />, <Ph value={s.affiliation} />
                 </p>
-                <p className="t-small mt-4">{s.bio}</p>
+                <p className="t-small mt-4">
+                  <Ph value={s.bio} />
+                </p>
                 {s.links?.length ? (
                   <ul className="mt-4 flex flex-wrap gap-x-5 gap-y-2">
                     {s.links.map((l) => (

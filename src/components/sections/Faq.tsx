@@ -1,28 +1,8 @@
 import { copy, faq, site } from "@/content/series";
-import { isPlaceholder, stripBrackets } from "@/lib/content";
+import { Ph, withPlaceholders } from "@/components/ui/Text";
 
-const EMAIL = /^[\w.+-]+@[\w-]+(?:\.[\w-]+)+$/;
-
-/**
- * Turns placeholder tokens inside a sentence, like [hello@…], into dashed-underline spans,
- * and real email addresses into links that never break across lines.
- */
-function withPlaceholders(text: string) {
-  const parts = text.split(/(\[[^\]]+\]|[\w.+-]+@[\w-]+(?:\.[\w-]+)+)/g);
-  return parts.map((part, i) =>
-    isPlaceholder(part) ? (
-      <span key={i} className="ph" title="Placeholder: edit src/content/series.ts">
-        {stripBrackets(part)}
-      </span>
-    ) : EMAIL.test(part) ? (
-      <a key={i} href={`mailto:${part}`} className="link whitespace-nowrap text-[color:var(--color-night)]">
-        {part}
-      </a>
-    ) : (
-      <span key={i}>{part}</span>
-    ),
-  );
-}
+/** Email addresses in the answers are links, a shade darker than the text around them. */
+const LINK = "text-[color:var(--color-night)]";
 
 export function Faq() {
   return (
@@ -41,19 +21,21 @@ export function Faq() {
                 <li key={item.question}>
                   <details className="faq-item" name="faq" open={i === 0}>
                     <summary className="flex items-start justify-between gap-6 py-6 md:py-7">
-                      <span className="t-d3">{item.question}</span>
+                      <span className="t-d3">
+                        <Ph value={item.question} linkEmails={false} />
+                      </span>
                       <span className="faq-icon mt-1" aria-hidden="true" />
                     </summary>
                     <div className="pb-8 pr-12">
-                      <p className="t-body max-w-[52ch] text-[color:var(--night-2)]">{withPlaceholders(item.answer)}</p>
+                      <p className="t-body max-w-[52ch] text-[color:var(--night-2)]">{withPlaceholders(item.answer, { linkClassName: LINK })}</p>
                     </div>
                   </details>
                 </li>
               ))}
             </ul>
             <p className="t-body mt-8 text-[color:var(--night-2)]">
-              {copy.faq.more}{" "}
-              {copy.faq.writeTo} {withPlaceholders(site.contactEmail)}
+              <Ph value={copy.faq.more} />{" "}
+              <Ph value={copy.faq.writeTo} /> {withPlaceholders(site.contactEmail, { linkClassName: LINK })}
               .
             </p>
           </div>

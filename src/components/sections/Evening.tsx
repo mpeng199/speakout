@@ -1,5 +1,6 @@
 import { copy } from "@/content/series";
 import { AmberField } from "@/components/visuals/AmberField";
+import { Ph } from "@/components/ui/Text";
 
 export function Evening() {
   const steps = copy.evening.steps;
@@ -30,10 +31,10 @@ export function Evening() {
                   {String(i + 1).padStart(2, "0")} / {total}
                 </p>
                 <h3 className="t-d1 mt-5" data-step-line>
-                  {s.title}
+                  <Ph value={s.title} />
                 </h3>
                 <p className="t-lead mt-6 max-w-[34ch] text-[color:var(--paper-2)]" data-step-line>
-                  {s.text}
+                  <Ph value={s.text} />
                 </p>
                 <ul className="mt-8 flex flex-wrap gap-2" data-step-line aria-label={copy.evening.factsName}>
                   {s.facts.map((f) => (

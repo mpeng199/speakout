@@ -15,14 +15,14 @@ export function SiteFooter() {
           <div className="col-span-12 lg:col-span-6">
             <p className="t-label eyebrow">{copy.signup.label}</p>
             <h2 id="signup-title" className="t-hero balance mt-6" data-reveal="lines">
-              {copy.signup.title}
+              <Ph value={copy.signup.title} />
             </h2>
             <p className="t-lead mt-6 max-w-[30ch] text-[color:var(--paper-2)]" data-reveal="fade">
-              {copy.signup.intro}
+              <Ph value={copy.signup.intro} />
             </p>
           </div>
           <div className="col-span-12 flex flex-col justify-end lg:col-span-5 lg:col-start-8">
-            <SignupForm formId={formId} privacyLine={site.signup.privacyLine} words={copy.signup} />
+            <SignupForm formId={formId} privacyLine={<Ph value={site.signup.privacyLine} />} words={copy.signup} />
           </div>
         </div>
 
@@ -81,8 +81,10 @@ export function SiteFooter() {
 
         <div className="mt-6 flex flex-col gap-3 border-t border-[color:var(--paper-line)] pt-6 sm:flex-row sm:items-center sm:justify-between">
           <p className="t-small text-[color:var(--paper-3)]">
-            {copy.footer.copyright}
-            <span className="block sm:inline sm:before:content-['_·_']">{copy.footer.colophon}</span>
+            <Ph value={copy.footer.copyright} />
+            <span className="block sm:inline sm:before:content-['_·_']">
+              <Ph value={copy.footer.colophon} />
+            </span>
           </p>
           <a href="#top" className="t-label link-draw self-start text-[color:var(--paper-2)] sm:self-auto">
             {copy.footer.backToTop}

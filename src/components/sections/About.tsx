@@ -18,7 +18,7 @@ export function About() {
                 {s.label}
               </p>
               <p className={`t-d1 balance col-span-12 lg:row-start-1 ${textCols[i] ?? textCols[0]}`} data-reveal="lines">
-                {s.text}
+                <Ph value={s.text} />
               </p>
             </div>
           ))}

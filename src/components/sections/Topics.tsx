@@ -11,12 +11,12 @@ export function Topics() {
           <div className="col-span-12 lg:col-span-7">
             <p className="t-label eyebrow">{copy.topics.label}</p>
             <h2 id="topics-title" className="t-d1 balance mt-6" data-reveal="lines">
-              {copy.topics.title}
+              <Ph value={copy.topics.title} />
             </h2>
           </div>
           <div className="col-span-12 flex flex-col justify-end gap-5 lg:col-span-4 lg:col-start-9">
             <p className="t-lead text-[color:var(--night-2)]" data-reveal="fade">
-              {copy.topics.intro}
+              <Ph value={copy.topics.intro} />
             </p>
           </div>
         </div>
@@ -29,20 +29,20 @@ export function Topics() {
                 {t.area}
               </p>
               <p className="t-d2 balance col-span-12 md:col-span-9 lg:col-span-8" data-reveal="lines">
-                {t.question}
+                <Ph value={t.question} />
               </p>
             </li>
           ))}
         </ul>
         <p className="t-body mt-10 text-[color:var(--night-2)]">
-          {copy.topics.ask}{" "}
+          <Ph value={copy.topics.ask} />{" "}
           {suggestHref ? (
             <a href={suggestHref} className="link text-[color:var(--color-night)]">
               {copy.topics.suggest}
             </a>
           ) : (
             <>
-              {copy.topics.suggestAt} <Ph value={site.contactEmail} />
+              <Ph value={copy.topics.suggestAt} /> <Ph value={site.contactEmail} />
             </>
           )}
           .

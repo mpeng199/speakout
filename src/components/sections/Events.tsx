@@ -4,6 +4,7 @@ import { copy, site } from "@/content/series";
 import { fill, getSchedule, type EventView } from "@/lib/content";
 import { Label } from "@/components/ui/Label";
 import { RelativeDay } from "@/components/RelativeDay";
+import { Ph } from "@/components/ui/Text";
 
 export function EventCard({ event, headingLevel = "h3" }: { event: EventView; headingLevel?: "h2" | "h3" }) {
   const rows = [
@@ -18,9 +19,9 @@ export function EventCard({ event, headingLevel = "h3" }: { event: EventView; he
         </>
       ),
     },
-    { term: copy.label.where, detail: event.display.venue },
-    { term: copy.label.speaker, detail: event.display.speaker },
-    { term: copy.label.admission, detail: copy.label.free },
+    { term: copy.label.where, detail: <Ph value={event.display.venue} /> },
+    { term: copy.label.speaker, detail: <Ph value={event.display.speaker} /> },
+    { term: copy.label.admission, detail: <Ph value={copy.label.free} /> },
   ];
   return (
     <article className="event-card" aria-labelledby={`event-${event.slug}`}>
@@ -37,7 +38,7 @@ export function EventCard({ event, headingLevel = "h3" }: { event: EventView; he
         right={event.label}
         title={
           <Link href={`/events/${event.slug}`} id={`event-${event.slug}`} className="event-card-link">
-            {event.display.title}
+            <Ph value={event.display.title} linkEmails={false} />
           </Link>
         }
         titleAs={headingLevel}
@@ -77,7 +78,7 @@ export async function Events() {
         <div className="grid-12 gap-y-6">
           <p className="t-label eyebrow col-span-12">{copy.events.label}</p>
           <h2 id="events-title" className="t-d1 balance col-span-12 mt-2 lg:col-span-8" data-reveal="lines">
-            {copy.events.title}
+            <Ph value={copy.events.title} />
           </h2>
         </div>
 
@@ -94,12 +95,12 @@ export async function Events() {
             </ul>
           ) : (
             <p className="t-d2 balance col-span-12 lg:col-span-7" data-reveal="lines">
-              {copy.events.none}
+              <Ph value={copy.events.none} />
             </p>
           )}
           <div className="col-span-12 lg:col-span-4 lg:col-start-9 lg:pt-4">
             <p className="t-lead text-[color:var(--paper-2)]" data-reveal="fade">
-              {copy.events.note}
+              <Ph value={copy.events.note} />
             </p>
             <a href="#signup" className="t-label link mt-6 inline-block">
               {copy.events.cta}
@@ -115,7 +116,9 @@ export async function Events() {
                 <li key={e.slug}>
                   <Link href={`/events/${e.slug}`} className="past-row grid-12 items-baseline gap-y-2">
                     <span className="t-label tabular col-span-12 text-[color:var(--paper-3)] md:col-span-2">{e.label}</span>
-                    <span className="t-d3 col-span-12 md:col-span-7">{e.display.title}</span>
+                    <span className="t-d3 col-span-12 md:col-span-7">
+                      <Ph value={e.display.title} linkEmails={false} />
+                    </span>
                     <span className="t-small tabular col-span-12 text-[color:var(--paper-2)] md:col-span-3 md:text-right">
                       {e.display.dateMedium}
                     </span>

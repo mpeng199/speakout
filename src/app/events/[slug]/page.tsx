@@ -12,6 +12,7 @@ import { SiteFooter } from "@/components/sections/SiteFooter";
 import { Motion } from "@/components/motion/Motion";
 import { ShareButton } from "@/components/ShareButton";
 import { RelativeDay } from "@/components/RelativeDay";
+import { Ph } from "@/components/ui/Text";
 
 export async function generateStaticParams() {
   return events.map((e) => ({ slug: e.slug }));
@@ -72,16 +73,18 @@ export default async function EventPage({ params }: PageProps<"/events/[slug]">)
       term: copy.label.where,
       detail: event.venue ? (
         <>
-          {event.venue.name}
+          <Ph value={event.venue.name} />
           <br />
-          <span className="text-[color:var(--night-2)]">{event.venue.address}</span>
+          <span className="text-[color:var(--night-2)]">
+            <Ph value={event.venue.address} />
+          </span>
         </>
       ) : (
-        event.display.venue
+        <Ph value={event.display.venue} />
       ),
     },
-    { term: copy.label.speaker, detail: event.display.speaker },
-    { term: copy.label.admission, detail: copy.label.free },
+    { term: copy.label.speaker, detail: <Ph value={event.display.speaker} /> },
+    { term: copy.label.admission, detail: <Ph value={copy.label.free} /> },
   ];
 
   return (
@@ -124,18 +127,24 @@ export default async function EventPage({ params }: PageProps<"/events/[slug]">)
             <div className="col-span-12 lg:col-span-7">
               <p className="intro-fade flex items-center gap-3" style={{ "--d": 40 } as React.CSSProperties}>
                 <span className={event.isTba ? "tba-chip t-label" : "t-label eyebrow"}>{status}</span>
-                {event.topic ? <span className="t-label text-[color:var(--paper-3)]">{event.topic}</span> : null}
+                {event.topic ? (
+                  <span className="t-label text-[color:var(--paper-3)]">
+                    <Ph value={event.topic} />
+                  </span>
+                ) : null}
               </p>
               <h1 id="event-title" className={`${event.display.title.length > 18 ? "t-d1 max-w-[18ch]" : "t-hero"} balance mt-6`}>
                 <span className="sr-only">
                   {site.name} {event.label}:{" "}
                 </span>
                 <span className="mask-line">
-                  <span>{event.display.title}</span>
+                  <span>
+                    <Ph value={event.display.title} />
+                  </span>
                 </span>
               </h1>
               <p className="t-lead mt-8 max-w-[38ch] text-[color:var(--paper-2)] intro-fade" style={{ "--d": 100 } as React.CSSProperties}>
-                {event.summary ?? (event.isTba ? t.introTba : t.intro)}
+                <Ph value={event.summary ?? (event.isTba ? t.introTba : t.intro)} />
               </p>
               <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-4 intro-fade" style={{ "--d": 180 } as React.CSSProperties}>
                 {event.rsvpUrl && !isPast ? (
@@ -182,7 +191,7 @@ export default async function EventPage({ params }: PageProps<"/events/[slug]">)
 
             <div className="col-span-12 md:col-span-8 lg:col-span-5 lg:col-start-8 xl:col-span-4 xl:col-start-9">
               <ViewTransition name={`label-${event.slug}`} share="morph" default="none">
-                <Label className="hero-label vt-label intro-fade" reveal="intro" left={site.name} right={event.label} title={t.labelTitle} rows={rows} footer={copy.label.footer} />
+                <Label className="hero-label vt-label intro-fade" reveal="intro" left={site.name} right={event.label} title={t.labelTitle} rows={rows} footer={<Ph value={copy.label.footer} />} />
               </ViewTransition>
             </div>
           </div>
@@ -199,19 +208,19 @@ export default async function EventPage({ params }: PageProps<"/events/[slug]">)
             {event.title && event.summary ? (
               <>
                 <p className="t-d2 balance mt-8" data-reveal="lines">
-                  {event.title}
+                  <Ph value={event.title} />
                 </p>
                 <p className="t-lead mt-6 max-w-[40ch] text-[color:var(--night-2)]" data-reveal="fade">
-                  {event.summary}
+                  <Ph value={event.summary} />
                 </p>
               </>
             ) : (
               <>
                 <p className="t-d2 balance mt-8" data-reveal="lines">
-                  {t.talkTba}
+                  <Ph value={t.talkTba} />
                 </p>
                 <p className="t-lead mt-6 max-w-[40ch] text-[color:var(--night-2)]" data-reveal="fade">
-                  {t.talkTbaText}
+                  <Ph value={t.talkTbaText} />
                 </p>
                 <Link href="/#topics" className="t-label link mt-6 inline-block print:hidden">
                   {t.talkTbaLink}
@@ -238,20 +247,24 @@ export default async function EventPage({ params }: PageProps<"/events/[slug]">)
                   )}
                 </div>
                 <div>
-                  <p className="t-d3">{speaker.name}</p>
-                  <p className="t-small mt-1 text-[color:var(--night-2)]">
-                    {speaker.role}, {speaker.affiliation}
+                  <p className="t-d3">
+                    <Ph value={speaker.name} />
                   </p>
-                  <p className="t-body mt-4">{speaker.bio}</p>
+                  <p className="t-small mt-1 text-[color:var(--night-2)]">
+                    <Ph value={speaker.role} />, <Ph value={speaker.affiliation} />
+                  </p>
+                  <p className="t-body mt-4">
+                    <Ph value={speaker.bio} />
+                  </p>
                 </div>
               </div>
             ) : (
               <>
                 <p className="t-d2 mt-8" data-reveal="lines">
-                  {t.speakerTba}
+                  <Ph value={t.speakerTba} />
                 </p>
                 <p className="t-lead mt-6 max-w-[34ch] text-[color:var(--night-2)]" data-reveal="fade">
-                  {t.speakerTbaText}
+                  <Ph value={t.speakerTbaText} />
                 </p>
               </>
             )}
@@ -273,8 +286,12 @@ export default async function EventPage({ params }: PageProps<"/events/[slug]">)
                   {String(i + 1).padStart(2, "0")}
                   {times[i] ? <span className="text-[color:var(--paper-2)]"> · {times[i]}</span> : null}
                 </p>
-                <h3 className="t-d2 mt-4">{s.title}</h3>
-                <p className="t-body mt-4 max-w-[34ch] text-[color:var(--paper-2)]">{s.text}</p>
+                <h3 className="t-d2 mt-4">
+                  <Ph value={s.title} />
+                </h3>
+                <p className="t-body mt-4 max-w-[34ch] text-[color:var(--paper-2)]">
+                  <Ph value={s.text} />
+                </p>
               </li>
             ))}
           </ol>
@@ -290,14 +307,20 @@ export default async function EventPage({ params }: PageProps<"/events/[slug]">)
             </h2>
             {/* Long venue names ("…, Second Floor Reading Room") step down a size so they don't fill the column. */}
             <p className={`${event.venue && event.venue.name.length > 26 ? "t-d2" : "t-d1"} balance mt-8`} data-reveal="lines">
-              {event.venue ? event.venue.name : t.venueTba}
+              <Ph value={event.venue ? event.venue.name : t.venueTba} />
             </p>
           </div>
           <div className="col-span-12 lg:col-span-6 lg:col-start-7 lg:pt-16">
             {event.venue ? (
               <>
-                <p className="t-lead">{event.venue.address}</p>
-                {event.venue.notes ? <p className="t-body mt-4 text-[color:var(--night-2)]">{event.venue.notes}</p> : null}
+                <p className="t-lead">
+                  <Ph value={event.venue.address} />
+                </p>
+                {event.venue.notes ? (
+                  <p className="t-body mt-4 text-[color:var(--night-2)]">
+                    <Ph value={event.venue.notes} />
+                  </p>
+                ) : null}
                 {event.venue.mapUrl ? (
                   <a href={event.venue.mapUrl} className="t-label link mt-6 inline-block" target="_blank" rel="noopener noreferrer">
                     {t.venueMap}
@@ -307,7 +330,7 @@ export default async function EventPage({ params }: PageProps<"/events/[slug]">)
               </>
             ) : (
               <p className="t-lead max-w-[40ch] text-[color:var(--night-2)]" data-reveal="fade">
-                {t.venueTbaText}
+                <Ph value={t.venueTbaText} />
               </p>
             )}
           </div>

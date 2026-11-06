@@ -22,7 +22,7 @@ export async function Hero() {
       {copy.hero.firstEvent} <Ph value={firstEvent} />
     </>
   ) : (
-    label.when
+    <Ph value={label.when} />
   );
 
   return (
@@ -39,7 +39,7 @@ export async function Hero() {
 
       <div className="wrap relative flex flex-1 flex-col pt-[calc(var(--nav-h)+clamp(2rem,6vh,4.5rem))] pb-[clamp(1.5rem,5vh,3.5rem)]">
         <p className="t-label eyebrow intro-fade" style={{ "--d": 0 } as React.CSSProperties}>
-          {site.name} · {copy.hero.eyebrow} · {site.city}
+          {site.name} · <Ph value={copy.hero.eyebrow} /> · {site.city}
         </p>
 
         <h1 className="t-hero mt-[clamp(1.25rem,3.2vh,2.5rem)] max-w-[12ch]">
@@ -59,7 +59,7 @@ export async function Hero() {
         <div className="hero-bottom grid-12 mt-auto items-end gap-y-10 pt-12">
           <div className="col-span-12 md:col-span-6 lg:col-span-5">
             <p className="hero-sub t-lead max-w-[30ch] text-[color:var(--paper-2)] intro-fade" style={{ "--d": 80 } as React.CSSProperties}>
-              {copy.hero.sub}
+              <Ph value={copy.hero.sub} />
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4 intro-fade" style={{ "--d": 160 } as React.CSSProperties}>
               <a href="#signup" className="btn btn-amber magnetic w-full sm:w-auto" data-magnetic="0.3">
@@ -86,28 +86,30 @@ export async function Hero() {
                 featured ? (
                   // The whole card opens the evening's page (the link is stretched over it).
                   <Link href={`/events/${featured.slug}`} className="card-link">
-                    {label.title}
+                    <Ph value={label.title} linkEmails={false} />
                   </Link>
                 ) : (
-                  label.title
+                  <Ph value={label.title} />
                 )
               }
               rows={[
                 { term: copy.label.when, detail: when },
-                { term: copy.label.where, detail: label.where },
-                { term: copy.label.speaker, detail: label.speaker },
-                { term: copy.label.admission, detail: label.admission },
+                { term: copy.label.where, detail: <Ph value={label.where} /> },
+                { term: copy.label.speaker, detail: <Ph value={label.speaker} /> },
+                { term: copy.label.admission, detail: <Ph value={label.admission} /> },
               ]}
               footer={
                 featured ? (
                   <span className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
-                    <span>{copy.label.footer}</span>
+                    <span>
+                      <Ph value={copy.label.footer} />
+                    </span>
                     <span className="t-label link-draw text-[color:var(--color-night)]" aria-hidden="true">
                       {copy.hero.details}
                     </span>
                   </span>
                 ) : (
-                  copy.label.footer
+                  <Ph value={copy.label.footer} />
                 )
               }
             />
