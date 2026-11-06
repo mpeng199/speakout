@@ -85,7 +85,6 @@ function smoothAnchors(reduce: boolean) {
 function navTheme(reduce: boolean) {
   const nav = document.querySelector<HTMLElement>("[data-site-nav]");
   if (!nav) return () => {};
-  const triggers: ScrollTrigger[] = [];
   // The bar takes the colours of whatever is painted under its centre line. Asking the browser
   // (rather than measuring sections) stays right under the sticky hero, the sheet sliding over
   // it and the pinned sequence, whose scroll length moves every section after it.
@@ -116,13 +115,11 @@ function navTheme(reduce: boolean) {
     nav.classList.toggle("is-hidden", !menuOpen && !focusInside && direction === 1 && y > window.innerHeight * 0.6);
   };
   update(window.scrollY, 0);
-  triggers.push(
-    ScrollTrigger.create({
-      start: 0,
-      end: "max",
-      onUpdate: (self) => update(self.scroll(), self.direction),
-    }),
-  );
+  ScrollTrigger.create({
+    start: 0,
+    end: "max",
+    onUpdate: (self) => update(self.scroll(), self.direction),
+  });
   // Pins and resizes move sections without a scroll event.
   ScrollTrigger.addEventListener("refresh", pick);
   // Keyboard focus that lands in the bar (Tab, Shift+Tab, skip link) must not sit in a hidden bar.
@@ -131,7 +128,8 @@ function navTheme(reduce: boolean) {
   return () => {
     ScrollTrigger.removeEventListener("refresh", pick);
     nav.removeEventListener("focusin", reveal);
-    triggers.forEach((t) => t.kill());
+    // With reduced motion the bar never hides, so it must not stay hidden from before.
+    reveal();
   };
 }
 
@@ -140,37 +138,39 @@ function navTheme(reduce: boolean) {
 /**
  * Text is only split when it gets close to the viewport, so the page does
  * almost no work on load. Each block is prepared just below the fold, then
- * its lines rise in when it scrolls into view.
+ * its lines rise in when it scrolls into view. That happens after setup, so
+ * the split is added to the motion context explicitly.
  */
-function lineReveals() {
-  const splits: SplitText[] = [];
+function lineReveals(ctx: gsap.Context) {
+  let done = false;
   const prep = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
+        if (done || !entry.isIntersecting) return;
         const el = entry.target as HTMLElement;
         prep.unobserve(el);
         const delay = Number(el.dataset.revealDelay ?? 0);
-        const split = SplitText.create(el, {
-          type: "lines",
-          mask: "lines",
-          linesClass: "split-line",
-          autoSplit: true,
-          // Only lines are wrapped, so the words stay intact for screen readers;
-          // no aria-label is needed (and a label on a <p> is not allowed).
-          aria: "none",
-          onSplit(self) {
-            return gsap.from(self.lines, {
-              yPercent: 108,
-              duration: 0.9,
-              ease: EASE,
-              stagger: 0.07,
-              delay,
-              scrollTrigger: { trigger: el, start: "top 90%", once: true },
-            });
-          },
+        ctx.add(() => {
+          SplitText.create(el, {
+            type: "lines",
+            mask: "lines",
+            linesClass: "split-line",
+            autoSplit: true,
+            // Only lines are wrapped, so the words stay intact for screen readers;
+            // no aria-label is needed (and a label on a <p> is not allowed).
+            aria: "none",
+            onSplit(self) {
+              return gsap.from(self.lines, {
+                yPercent: 108,
+                duration: 0.9,
+                ease: EASE,
+                stagger: 0.07,
+                delay,
+                scrollTrigger: { trigger: el, start: "top 90%", once: true },
+              });
+            },
+          });
         });
-        splits.push(split);
       });
     },
     { rootMargin: "0px 0px 45% 0px" },
@@ -182,63 +182,54 @@ function lineReveals() {
     prep.observe(el);
   });
   return () => {
+    done = true;
     prep.disconnect();
-    splits.forEach((s) => s.revert());
   };
 }
 
 /** The footer wordmark: each letter rises out of its mask, left to right. */
 function charReveals() {
-  const splits: SplitText[] = [];
   document.querySelectorAll<HTMLElement>("[data-reveal='chars']").forEach((el) => {
-    splits.push(
-      SplitText.create(el, {
-        type: "chars",
-        mask: "chars",
-        charsClass: "split-char",
-        aria: "none",
-        autoSplit: true,
-        onSplit(self) {
-          return gsap.from(self.chars, {
-            yPercent: 105,
-            duration: 1.1,
-            ease: "expo.out",
-            stagger: 0.045,
-            scrollTrigger: { trigger: el, start: "top 95%", once: true },
-          });
-        },
-      }),
-    );
+    SplitText.create(el, {
+      type: "chars",
+      mask: "chars",
+      charsClass: "split-char",
+      aria: "none",
+      autoSplit: true,
+      onSplit(self) {
+        return gsap.from(self.chars, {
+          yPercent: 105,
+          duration: 1.1,
+          ease: "expo.out",
+          stagger: 0.045,
+          scrollTrigger: { trigger: el, start: "top 95%", once: true },
+        });
+      },
+    });
   });
-  return () => splits.forEach((s) => s.revert());
 }
 
 function fades() {
-  const tweens: gsap.core.Tween[] = [];
   document.querySelectorAll<HTMLElement>("[data-reveal='fade']").forEach((el) => {
-    tweens.push(
-      gsap.from(el, {
-        y: 22,
-        opacity: 0,
-        duration: 0.9,
-        ease: EASE,
-        delay: Number(el.dataset.revealDelay ?? 0),
-        scrollTrigger: { trigger: el, start: "top 92%", once: true },
-      }),
-    );
+    gsap.from(el, {
+      y: 22,
+      opacity: 0,
+      duration: 0.9,
+      ease: EASE,
+      delay: Number(el.dataset.revealDelay ?? 0),
+      scrollTrigger: { trigger: el, start: "top 92%", once: true },
+    });
   });
   document.querySelectorAll<HTMLElement>("[data-reveal='stagger']").forEach((group) => {
     const items = Array.from(group.children) as HTMLElement[];
-    tweens.push(
-      gsap.from(items, {
-        y: 26,
-        opacity: 0,
-        duration: 0.85,
-        ease: EASE,
-        stagger: 0.07,
-        scrollTrigger: { trigger: group, start: "top 88%", once: true },
-      }),
-    );
+    gsap.from(items, {
+      y: 26,
+      opacity: 0,
+      duration: 0.85,
+      ease: EASE,
+      stagger: 0.07,
+      scrollTrigger: { trigger: group, start: "top 88%", once: true },
+    });
   });
   // Label cards print row by row, like a pharmacy label coming out of the printer.
   const arrivedByMorph = document.documentElement.dataset.navigated === "true";
@@ -249,7 +240,6 @@ function fades() {
     tl.from(card, { y: 24, opacity: 0, duration: 0.7, ease: EASE });
     tl.from(rows, { clipPath: "inset(0 100% 0 0)", duration: 0.45, ease: EASE, stagger: 0.06 }, 0.15);
   });
-  return () => tweens.forEach((t) => t.scrollTrigger?.kill());
 }
 
 /* ───────────────────────────── Parallax ───────────────────────────── */
@@ -263,19 +253,15 @@ function heroStack(reduce: boolean) {
   const hero = stack?.querySelector<HTMLElement>(".hero");
   const sheet = hero?.nextElementSibling as HTMLElement | null;
   if (!stack || !hero || !sheet) return () => {};
-  const triggers: ScrollTrigger[] = [];
-  triggers.push(
-    ScrollTrigger.create({
-      trigger: sheet,
-      start: "top top",
-      onEnter: () => (hero.dataset.covered = "true"),
-      onLeaveBack: () => delete hero.dataset.covered,
-    }),
-  );
-  let tween: gsap.core.Tween | null = null;
+  ScrollTrigger.create({
+    trigger: sheet,
+    start: "top top",
+    onEnter: () => (hero.dataset.covered = "true"),
+    onLeaveBack: () => delete hero.dataset.covered,
+  });
   const content = hero.querySelector<HTMLElement>(":scope > .wrap");
   if (!reduce && content && getComputedStyle(hero).position === "sticky") {
-    tween = gsap.to(content, {
+    gsap.to(content, {
       scale: 0.94,
       opacity: 0.35,
       transformOrigin: "50% 20%",
@@ -284,41 +270,31 @@ function heroStack(reduce: boolean) {
     });
   }
   return () => {
-    triggers.forEach((t) => t.kill());
-    tween?.scrollTrigger?.kill();
-    tween?.kill();
-    if (content) gsap.set(content, { clearProps: "transform,opacity" });
     delete hero.dataset.covered;
   };
 }
 
 function parallax() {
-  const tweens: gsap.core.Tween[] = [];
   document.querySelectorAll<HTMLElement>("[data-parallax]").forEach((el) => {
     const amount = Number(el.dataset.parallax || 10);
-    tweens.push(
-      gsap.fromTo(
-        el,
-        { yPercent: -amount / 2 },
-        {
-          yPercent: amount / 2,
-          ease: "none",
-          scrollTrigger: { trigger: el.parentElement ?? el, start: "top bottom", end: "bottom top", scrub: true },
-        },
-      ),
+    gsap.fromTo(
+      el,
+      { yPercent: -amount / 2 },
+      {
+        yPercent: amount / 2,
+        ease: "none",
+        scrollTrigger: { trigger: el.parentElement ?? el, start: "top bottom", end: "bottom top", scrub: true },
+      },
     );
   });
   // The hero light drifts up a little slower than the page.
   document.querySelectorAll<HTMLElement>("[data-parallax-out]").forEach((el) => {
-    tweens.push(
-      gsap.to(el, {
-        yPercent: Number(el.dataset.parallaxOut || 18),
-        ease: "none",
-        scrollTrigger: { trigger: el.parentElement ?? el, start: "top top", end: "bottom top", scrub: true },
-      }),
-    );
+    gsap.to(el, {
+      yPercent: Number(el.dataset.parallaxOut || 18),
+      ease: "none",
+      scrollTrigger: { trigger: el.parentElement ?? el, start: "top top", end: "bottom top", scrub: true },
+    });
   });
-  return () => tweens.forEach((t) => t.scrollTrigger?.kill());
 }
 
 /* ───────────────────────────── Magnetic buttons ───────────────────────────── */
@@ -353,7 +329,6 @@ function magnetic() {
     offs.push(() => {
       el.removeEventListener("pointermove", move);
       el.removeEventListener("pointerleave", leave);
-      gsap.set([el, inner].filter(Boolean), { x: 0, y: 0 });
     });
   });
   return () => offs.forEach((f) => f());
@@ -367,9 +342,7 @@ function magnetic() {
  * and the choice follows rotation and resizing.
  */
 function evening() {
-  const mm = gsap.matchMedia();
-  mm.add("(min-height: 34rem)", () => pinEvening());
-  return () => mm.revert();
+  gsap.matchMedia().add("(min-height: 34rem)", () => pinEvening());
 }
 
 function pinEvening() {
@@ -457,11 +430,17 @@ function pinEvening() {
     }
   }
 
+  // GSAP has reverted the timeline and the pin by the time this runs. The timeline stacks sets and
+  // scrubbed tweens on the same elements, which a revert does not always unwind exactly, so what it
+  // animates is cleared as well (none of these elements has an inline style of its own).
   return () => {
-    tl.scrollTrigger?.kill();
-    tl.kill();
+    gsap.set([...steps, ...section.querySelectorAll<HTMLElement>("[data-step-line]"), ...bars], { clearProps: "all" });
     delete section.dataset.pinned;
-    gsap.set(steps, { clearProps: "all" });
+    if (counter) counter.textContent = "01";
+    dots.forEach((d, i) => {
+      d.classList.toggle("is-active", i === 0);
+      if (!d.classList.length) d.removeAttribute("class");
+    });
     if (still) {
       still.removeAttribute("transform");
       still.style.opacity = "";
@@ -503,11 +482,20 @@ const yieldToMain = () =>
     else setTimeout(resolve, 0);
   });
 
+/**
+ * Every step runs inside one GSAP context, so everything GSAP and SplitText do (tweens and their
+ * starting states, ScrollTriggers and pins, split text, the evening's matchMedia) is recorded,
+ * including what is created later (text split as it nears the viewport, re-splits on resize).
+ * The returned cleanup reverts it all: every element is back as the server rendered it, and the
+ * setup can run again, for example when reduced motion is switched on or off while the page is open.
+ */
 export function setupMotion({ reduce }: { reduce: boolean }) {
   ScrollTrigger.config({ ignoreMobileResize: true });
-  const cleanups: (() => void)[] = [];
+  const ctx = gsap.context(() => {});
   let cancelled = false;
 
+  // A cleanup a step returns (listeners, observers, flags) is called by ctx.revert(), after GSAP has
+  // reverted everything: a tween or ScrollTrigger killed before it is reverted would leave its styles behind.
   const steps: (() => (() => void) | void)[] = reduce
     ? [() => teardownLenis(), () => smoothAnchors(reduce), () => navTheme(reduce), () => fitText(), () => heroStack(reduce)]
     : [
@@ -522,15 +510,14 @@ export function setupMotion({ reduce }: { reduce: boolean }) {
         () => heroStack(reduce),
         () => parallax(),
         () => fades(),
-        () => lineReveals(),
+        () => lineReveals(ctx),
         () => charReveals(),
       ];
 
   (async () => {
     for (const step of steps) {
       if (cancelled) return;
-      const off = step();
-      if (off) cleanups.push(off);
+      ctx.add(step);
       await yieldToMain();
     }
     if (cancelled) return;
@@ -558,7 +545,7 @@ export function setupMotion({ reduce }: { reduce: boolean }) {
 
   return () => {
     cancelled = true;
-    cleanups.reverse().forEach((fn) => fn());
+    ctx.revert();
     ScrollTrigger.getAll().forEach((t) => t.kill());
   };
 }
