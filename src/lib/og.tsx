@@ -3,6 +3,8 @@ import { cacheLife } from "next/cache";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import sharp from "sharp";
+import { copy } from "@/content/series";
+import { unlessPlaceholder } from "@/lib/content";
 
 export const OG_SIZE = { width: 1200, height: 630 };
 
@@ -34,21 +36,57 @@ async function loadFont(family: string, spec: string, text: string, stretch?: st
 const lightSrc = `data:image/jpeg;base64,${await readFile(join(process.cwd(), "src/lib/og-light.jpg"), "base64")}`;
 
 /*
+ * Text widths on the card, in em, measured on rendered cards: Mona Sans semi-expanded 500 at the
+ * headline's -0.05em letter spacing, and Source Serif 4 for the label rows. Each character counts
+ * as the widest of its group, so an estimate is never narrower than the text; anything not listed
+ * counts as a wide letter.
+ */
+function widths(groups: [number, string][], other: number): (text: string) => number {
+  const em = new Map<string, number>();
+  for (const [w, chars] of groups) for (const c of chars) em.set(c, w);
+  return (text) => [...text].reduce((sum, c) => sum + (em.get(c) ?? other), 0);
+}
+const sansEm = widths([[0.2, " !',.:;ijl·’"], [0.35, "\"()-/1Ifrt“”"], [0.5, "Jsz–"], [0.6, "2357?FLTabcdeghknopquvxy…"], [0.7, "04689BEKPRSXYZ—"], [0.8, "&ACDGHNOUVw"], [1, "MQWm"]], 0.8);
+const serifEm = widths([[0.25, " '’"], [0.35, "!,-./:;ijl·"], [0.45, "\"()?IJft“”"], [0.55, "0123456789Sacersz–"], [0.65, "EFLPTZbdghknopquvxy"], [0.75, "&ABCDGKOQRVXY"], [0.85, "HNUw—…"], [1.01, "MWm"]], 0.85);
+/** The label title is the headline's face at -0.03em, so 0.02em wider a character. */
+const titleEm = (t: string) => sansEm(t) + 0.02 * [...t].length;
+
+/** How many lines a text takes in a box `width` px wide, breaking only between words. */
+function lineCount(text: string, width: number, size: number, em: (t: string) => number): number {
+  const linesFor = (t: string) => Math.max(1, Math.ceil((em(t) * size) / width));
+  let lines = 0;
+  let line = "";
+  for (const word of text.split(/\s+/).filter(Boolean)) {
+    if (line && em(`${line} ${word}`) * size > width) {
+      lines += linesFor(line);
+      line = word;
+    } else line = line ? `${line} ${word}` : word;
+  }
+  return lines + linesFor(line);
+}
+
+/*
+ * The label card's height, measured on rendered cards: 89 px of strip and padding, 42 px a line of
+ * title (30 px type, 402 px wide), and for each row 19 px plus 25 px a line of detail (18 px serif,
+ * 282 px beside the term).
+ */
+function cardHeight(labelTitle: string, rows: [string, string][]): number {
+  return 89 + 42 * lineCount(labelTitle, 402, 30, titleEm) + rows.reduce((h, [, d]) => h + 19 + 25 * lineCount(d, 282, 18, serifEm), 0);
+}
+
+/*
  * Headline size for the share card: the largest that keeps every line clear of the label card.
- * Lines that sit above the card may run wide; lines level with it must stop before it. Widths
- * and the card's height are estimated (Mona Sans semi-expanded at -0.05em averages under 0.53em
- * a character; a detail row wraps at about 30 characters), calibrated on rendered cards.
+ * Lines that sit above the card may run wide, up to the image's margin; lines level with it (their
+ * descenders reach about 1.02em below the line's top) must stop 24 px before it.
  */
 const CARD_LEFT = 1200 - 64 - 450;
-function fitHeadline(lines: string[], rows: [string, string][]): number {
-  const cardHeight = 139 + rows.reduce((h, [, d]) => h + 19 + 23 * Math.max(1, Math.ceil(d.length / 30)), 0);
-  const cardTop = 630 - 56 - cardHeight;
+function fitHeadline(lines: string[], labelTitle: string, rows: [string, string][]): number {
+  const cardTop = 630 - 56 - cardHeight(labelTitle, rows);
   for (let size = 96; size > 48; size -= 4) {
     const lh = size * 0.94;
     const fits = lines.every((line, i) => {
-      const bottom = 120 + i * lh + size * 0.95;
-      const level = bottom > cardTop - 10;
-      return !level || 60 + line.length * size * 0.53 <= CARD_LEFT - 24;
+      const level = 120 + i * lh + size * 1.03 > cardTop - 10;
+      return 60 + sansEm(line) * size <= (level ? CARD_LEFT - 24 : 1200 - 64);
     });
     if (fits && 120 + lines.length * lh <= 600) return size;
   }
@@ -64,9 +102,22 @@ type OgCard = {
   rows: [string, string][];
 };
 
-/** The share image for a page, as a JPEG response. */
+/**
+ * The share image for a page, as a JPEG response. The image can't underline a [placeholder] the way
+ * the site does, so any text that still has one is drawn as "To be announced" (callers pass the
+ * wording that fits first; this is the last guard).
+ */
 export async function renderOg(card: OgCard) {
-  return new Response(await drawOg(card), { headers: { "Content-Type": "image/jpeg" } });
+  const clean = (t: string) => unlessPlaceholder(t, copy.tba.long);
+  const drawn: OgCard = {
+    eyebrow: clean(card.eyebrow),
+    lines: card.lines.map(clean),
+    labelLeft: clean(card.labelLeft),
+    labelRight: clean(card.labelRight),
+    labelTitle: clean(card.labelTitle),
+    rows: card.rows.map(([term, detail]) => [clean(term), clean(detail)]),
+  };
+  return new Response(await drawOg(drawn), { headers: { "Content-Type": "image/jpeg" } });
 }
 
 /**
@@ -87,7 +138,7 @@ async function drawOg({ eyebrow, lines, labelLeft, labelRight, labelTitle, rows 
     loadFont("Source+Serif+4", "wght@400", serifText),
   ]);
 
-  const headlineSize = fitHeadline(lines, rows);
+  const headlineSize = fitHeadline(lines, labelTitle, rows);
 
   const png = new ImageResponse(
     (

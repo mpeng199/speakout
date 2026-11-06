@@ -1,5 +1,5 @@
 import { copy, events, site } from "@/content/series";
-import { eventBySlug } from "@/lib/content";
+import { eventBySlug, unlessPlaceholder, untitledTitle } from "@/lib/content";
 import { OG_SIZE, renderOg } from "@/lib/og";
 
 export const alt = copy.shareImage.eventAlt;
@@ -29,10 +29,12 @@ function toLines(title: string): string[] {
   return kept;
 }
 
+/** An evening's share image: its title, and its label with the same rows as the hero and the event cards. */
 export default async function Image({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const event = eventBySlug(slug);
-  const title = event?.display.title ?? site.name;
+  // A title or venue still written as a [placeholder] is drawn as the site's "not announced yet" wording.
+  const title = event ? unlessPlaceholder(event.display.title, untitledTitle(event.number)) : site.name;
   return renderOg({
     eyebrow: `${site.name} · ${event?.label ?? ""} · ${site.city}`,
     lines: toLines(title),
@@ -41,8 +43,9 @@ export default async function Image({ params }: { params: Promise<{ slug: string
     labelTitle: event?.isTba ? copy.shareImage.detailsSoon : (event?.display.dateShort ?? ""),
     rows: [
       [copy.label.when, event?.display.date ?? copy.tba.date],
-      [copy.label.where, event?.display.venue ?? copy.tba.venue],
-      [copy.label.speaker, event?.display.speaker ?? copy.tba.speaker],
+      [copy.label.where, unlessPlaceholder(event?.display.venue ?? copy.tba.venue, copy.tba.venue)],
+      [copy.label.speaker, unlessPlaceholder(event?.display.speaker ?? copy.tba.long, copy.tba.long)],
+      [copy.label.admission, copy.label.free],
     ],
   });
 }

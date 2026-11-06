@@ -8,6 +8,16 @@ export function isPlaceholder(value: string | null | undefined): boolean {
   return typeof value === "string" && /^\s*\[.*\]\s*$/.test(value);
 }
 
+/** The text still has a [placeholder] somewhere in it, on its own or inside a sentence. */
+export function hasPlaceholder(value: string | null | undefined): boolean {
+  return typeof value === "string" && /\[[^\]]+\]/.test(value);
+}
+
+/** The text, or `fallback` while it still has a [placeholder] (for the share images, which can't underline one). */
+export function unlessPlaceholder(value: string, fallback: string): string {
+  return hasPlaceholder(value) ? fallback : value;
+}
+
 /** "[Month Year]" → "Month Year" */
 export function stripBrackets(value: string): string {
   return value.replace(/^\s*\[/, "").replace(/\]\s*$/, "");
@@ -36,6 +46,11 @@ export function fill(template: string, values: Record<string, string | number>):
 
 export function labelNumber(n: number): string {
   return `${copy.label.number} ${String(n).padStart(3, "0")}`;
+}
+
+/** What an evening is called until it has a title: "First evening", "Evening No. 002". */
+export function untitledTitle(n: number): string {
+  return n === 1 ? copy.untitled.first : fill(copy.untitled.numbered, { number: labelNumber(n) });
 }
 
 /* ───────────────────────────── Dates in New York time ───────────────────────────── */
@@ -139,7 +154,6 @@ export type EventView = SeriesEvent & {
     venue: string;
     address: string | null;
     speaker: string;
-    topic: string;
   };
 };
 
@@ -158,7 +172,7 @@ export function toEventView(e: SeriesEvent): EventView {
     speaker,
     isTba,
     display: {
-      title: e.title ?? (e.number === 1 ? copy.untitled.first : fill(copy.untitled.numbered, { number: labelNumber(e.number) })),
+      title: e.title ?? untitledTitle(e.number),
       date: startTs !== null ? formatDateLong(startTs) : copy.tba.date,
       dateMedium: startTs !== null ? formatDateMedium(startTs) : copy.tba.date,
       dateShort: startTs !== null ? formatDateShort(startTs) : copy.tba.short,
@@ -167,8 +181,7 @@ export function toEventView(e: SeriesEvent): EventView {
       end: endTs !== null ? formatTime(endTs) : null,
       venue: e.venue?.name ?? copy.tba.venue,
       address: e.venue?.address ?? null,
-      speaker: speaker ? speaker.name : copy.tba.speaker,
-      topic: e.topic ?? (e.title ? e.title : copy.tba.topic),
+      speaker: speaker ? speaker.name : copy.tba.long,
     },
   };
 }
@@ -198,6 +211,34 @@ export async function getSchedule() {
   const past = views.filter((e) => !isUpcoming(e)).sort((a, b) => (b.startTs ?? 0) - (a.startTs ?? 0));
   const next = upcoming.find((e) => e.startTs !== null) ?? null;
   return { upcoming, past, next };
+}
+
+/**
+ * The label in the hero, which the home page's share image repeats: the next evening with a date,
+ * else the first upcoming one, else a blank label for the next number in the series.
+ */
+export async function heroLabel() {
+  const { next, upcoming, past } = await getSchedule();
+  const featured = next ?? upcoming[0] ?? null;
+  // With nothing upcoming, the label points at the next number in the series.
+  const nextNumber = Math.max(0, ...upcoming.map((e) => e.number), ...past.map((e) => e.number)) + 1;
+  const isFirst = !past.length && (!featured || featured.number === 1);
+  // Until any evening has a date, the first one can show its month (site.firstEventLabel).
+  const firstEvent = !next && isFirst && site.firstEventLabel.trim() ? site.firstEventLabel : null;
+  return {
+    /** The evening the label opens, if there is one. */
+    featured,
+    /** The evening whose date and venue it shows, once one has a date. */
+    next,
+    firstEvent,
+    number: featured ? featured.label : labelNumber(nextNumber),
+    title: featured ? featured.display.title : isFirst ? copy.untitled.first : copy.untitled.next,
+    /** The rows as plain text; the hero adds "· tonight" and the like next to the date in the browser. */
+    when: next ? `${next.display.dateShort}, ${next.display.time}` : firstEvent ? `${copy.hero.firstEvent} ${firstEvent}` : copy.tba.long,
+    where: next?.venue ? next.venue.name : site.city,
+    speaker: featured ? featured.display.speaker : copy.tba.long,
+    admission: copy.label.free,
+  };
 }
 
 /* ───────────── Calendars ───────────── */

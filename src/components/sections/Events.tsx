@@ -20,7 +20,7 @@ export function EventCard({ event, headingLevel = "h3" }: { event: EventView; he
     },
     { term: copy.label.where, detail: event.display.venue },
     { term: copy.label.speaker, detail: event.display.speaker },
-    { term: copy.label.topic, detail: event.display.topic },
+    { term: copy.label.admission, detail: copy.label.free },
   ];
   return (
     <article className="event-card" aria-labelledby={`event-${event.slug}`}>

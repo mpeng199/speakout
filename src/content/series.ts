@@ -264,14 +264,13 @@ export const copy = {
   label: {
     /** Printed before the evening's number: No. 001. */
     number: "No.",
+    /** The rows: When, Where, Speaker and Admission everywhere, plus Time on event pages. */
     when: "When",
     time: "Time",
     where: "Where",
     speaker: "Speaker",
-    topic: "Topic",
-    format: "Format",
     admission: "Admission",
-    /** What the Admission row says. */
+    /** What the Admission row says, on every label and share image. */
     free: "Free. Everyone welcome.",
     /** The line under the rows, in the hero and on event pages. */
     footer: "No slides. No science background needed.",
@@ -296,13 +295,14 @@ export const copy = {
   tba: {
     /** On its own: the small tag on event cards. */
     short: "TBA",
+    /**
+     * A label row with nothing to show yet: the speaker, or the hero's When before any date.
+     * The share images also use it in place of a [placeholder], which they can't underline.
+     */
+    long: "To be announced",
     date: "Date TBA",
     time: "Time TBA",
     venue: `Venue TBA, ${site.city}`,
-    speaker: "To be announced",
-    topic: "To be announced",
-    /** The hero label's When row, with no date and no month for the first evening. */
-    when: "To be announced",
   },
 
   hero: {
@@ -314,8 +314,6 @@ export const copy = {
     secondary: "How an evening works",
     /** On the label until an evening has a date: "First event: March 2027" (the month is site.firstEventLabel). */
     firstEvent: "First event:",
-    /** The label's Format row. */
-    format: "10–15 minute talk, then open Q&A",
     /** At the bottom of the label, when it links to an evening's page. */
     details: "Details →",
   },
@@ -544,16 +542,15 @@ export const copy = {
     appName: `${site.name}: free evening talks on medicine`,
   },
 
-  /** The link-preview images: the picture a chat app or social site shows for a link. */
+  /**
+   * The link-preview images: the picture a chat app or social site shows for a link. The home
+   * page's image shows the same label as the hero; an event's image shows that evening's.
+   */
   shareImage: {
     eyebrow: `${site.name} · Free evening talks on medicine · NYC`,
     /** Screen readers: describes the image of the home page, and of an event page. */
     homeAlt: `${site.name}: ${site.promise.join(" ")} Free evening talks on medicine in ${site.city}.`,
     eventAlt: `An evening at ${site.name}, free talks on medicine in ${site.city}`,
-    /** The home image's label. */
-    homeTitle: "An evening of medicine",
-    format: "Short talk, then Q&A",
-    admission: "Free, open to all",
     /** An event image's label title, until the evening has a date. */
     detailsSoon: "Details soon",
   },

@@ -1,5 +1,5 @@
 import { copy, site } from "@/content/series";
-import { getSchedule, labelNumber } from "@/lib/content";
+import { heroLabel } from "@/lib/content";
 import { AmberField } from "@/components/visuals/AmberField";
 import { Label } from "@/components/ui/Label";
 import { Ph } from "@/components/ui/Text";
@@ -8,23 +8,21 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 export async function Hero() {
-  const { next, upcoming, past } = await getSchedule();
-  const featured = next ?? upcoming[0] ?? null;
-  // With nothing upcoming, the label points at the next number in the series.
-  const nextNumber = Math.max(0, ...upcoming.map((e) => e.number), ...past.map((e) => e.number)) + 1;
-  const isFirst = !past.length && (!featured || featured.number === 1);
+  // The home page's share image draws this same label (src/app/opengraph-image.tsx).
+  const label = await heroLabel();
+  const { featured, next, firstEvent } = label;
 
   const when = next ? (
     <>
-      {next.display.dateShort}, {next.display.time}
+      {label.when}
       {next.startTs !== null ? <RelativeDay ts={next.startTs} end={next.endTs} words={copy.relativeDay} /> : null}
     </>
-  ) : isFirst && site.firstEventLabel.trim() ? (
+  ) : firstEvent ? (
     <>
-      {copy.hero.firstEvent} <Ph value={site.firstEventLabel} />
+      {copy.hero.firstEvent} <Ph value={firstEvent} />
     </>
   ) : (
-    copy.tba.when
+    label.when
   );
 
   return (
@@ -83,27 +81,22 @@ export async function Hero() {
               className="hero-label intro-fade"
               reveal="intro"
               left={site.name}
-              right={featured ? featured.label : labelNumber(nextNumber)}
+              right={label.number}
               title={
                 featured ? (
                   // The whole card opens the evening's page (the link is stretched over it).
                   <Link href={`/events/${featured.slug}`} className="card-link">
-                    {featured.display.title}
+                    {label.title}
                   </Link>
-                ) : isFirst ? (
-                  copy.untitled.first
                 ) : (
-                  copy.untitled.next
+                  label.title
                 )
               }
               rows={[
                 { term: copy.label.when, detail: when },
-                {
-                  term: copy.label.where,
-                  detail: next?.venue ? next.venue.name : site.city,
-                },
-                { term: copy.label.format, detail: copy.hero.format },
-                { term: copy.label.admission, detail: copy.label.free },
+                { term: copy.label.where, detail: label.where },
+                { term: copy.label.speaker, detail: label.speaker },
+                { term: copy.label.admission, detail: label.admission },
               ]}
               footer={
                 featured ? (
