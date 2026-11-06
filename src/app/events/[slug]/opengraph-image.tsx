@@ -1,8 +1,8 @@
-import { events, site } from "@/content/series";
+import { copy, events, site } from "@/content/series";
 import { eventBySlug } from "@/lib/content";
 import { OG_SIZE, renderOg } from "@/lib/og";
 
-export const alt = `An evening at ${site.name}, free talks on medicine in New York City`;
+export const alt = copy.shareImage.eventAlt;
 export const size = OG_SIZE;
 export const contentType = "image/jpeg";
 
@@ -38,11 +38,11 @@ export default async function Image({ params }: { params: Promise<{ slug: string
     lines: toLines(title),
     labelLeft: site.name,
     labelRight: event?.label ?? "",
-    labelTitle: event?.isTba ? "Details soon" : (event?.display.dateShort ?? ""),
+    labelTitle: event?.isTba ? copy.shareImage.detailsSoon : (event?.display.dateShort ?? ""),
     rows: [
-      ["When", event?.isTba ? "Date TBA" : `${event?.display.date}`],
-      ["Where", event?.venue?.name ?? `Venue TBA, ${site.city}`],
-      ["Speaker", event?.display.speaker ?? "To be announced"],
+      [copy.label.when, event?.display.date ?? copy.tba.date],
+      [copy.label.where, event?.display.venue ?? copy.tba.venue],
+      [copy.label.speaker, event?.display.speaker ?? copy.tba.speaker],
     ],
   });
 }

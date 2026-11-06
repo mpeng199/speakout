@@ -4,23 +4,27 @@ import { useId, useRef, useState } from "react";
 
 type Status = "idle" | "sending" | "done" | "preview" | "error";
 
+/** The form's words, from `copy.signup` in the content file. */
+type SignupWords = {
+  label: string;
+  emailLabel: string;
+  emailPlaceholder: string;
+  button: string;
+  sending: string;
+  invalid: string;
+  failed: string;
+  offline: string;
+  confirmed: string;
+  success: string;
+  successNote: string;
+  emailSubject: string;
+};
+
 /**
  * Mailing list signup posted to Formspree. Works without JavaScript too: the
  * form then submits straight to Formspree.
  */
-export function SignupForm({
-  formId,
-  privacyLine,
-  button,
-  success,
-  successNote,
-}: {
-  formId: string | null;
-  privacyLine: string;
-  button: string;
-  success: string;
-  successNote: string;
-}) {
+export function SignupForm({ formId, privacyLine, words }: { formId: string | null; privacyLine: string; words: SignupWords }) {
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
   const statusRef = useRef<HTMLDivElement>(null);
@@ -37,7 +41,7 @@ export function SignupForm({
     const email = String(data.get("email") ?? "").trim();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       setStatus("error");
-      setError("Please enter a full email address, like name@example.com.");
+      setError(words.invalid);
       return;
     }
     if (String(data.get("_gotcha") ?? "")) return; // bot
@@ -61,11 +65,11 @@ export function SignupForm({
       } else {
         const body = (await res.json().catch(() => null)) as { errors?: { message: string }[] } | null;
         setStatus("error");
-        setError(body?.errors?.[0]?.message ?? "That didn’t go through. Please try again in a moment.");
+        setError(body?.errors?.[0]?.message ?? words.failed);
       }
     } catch {
       setStatus("error");
-      setError("We couldn’t reach the signup service. Check your connection and try again.");
+      setError(words.offline);
     }
   }
 
@@ -76,14 +80,14 @@ export function SignupForm({
       {finished ? (
         <div ref={statusRef} tabIndex={-1} className="signup-done label-card" role="status" aria-live="polite">
           <div className="t-label flex items-center justify-between text-[color:var(--night-3)]">
-            <span>Mailing list</span>
-            <span>Confirmed</span>
+            <span>{words.label}</span>
+            <span>{words.confirmed}</span>
           </div>
           <p className="t-d3 mt-2 flex items-center gap-3">
             <span className="signup-check" aria-hidden="true" />
-            {success}
+            {words.success}
           </p>
-          <p className="t-small mt-2 text-[color:var(--night-2)]">{successNote}</p>
+          <p className="t-small mt-2 text-[color:var(--night-2)]">{words.successNote}</p>
           {status === "preview" ? (
             <p className="t-small mt-3 border-t border-[color:var(--night-line)] pt-3 text-[color:var(--night-2)]">
               Preview only: this address was not saved. Add your Formspree form ID in <code>src/content/series.ts</code> to connect the form.
@@ -100,7 +104,7 @@ export function SignupForm({
           aria-describedby={noteId}
         >
           <label htmlFor={emailId} className="t-label block text-[color:var(--paper-2)]">
-            Email address
+            {words.emailLabel}
           </label>
           <div className="signup-row mt-3">
             <input
@@ -110,15 +114,15 @@ export function SignupForm({
               autoComplete="email"
               inputMode="email"
               required
-              placeholder="name@example.com"
+              placeholder={words.emailPlaceholder}
               className="signup-input"
               aria-invalid={status === "error" ? true : undefined}
               aria-describedby={status === "error" ? errorId : undefined}
             />
             <input type="text" name="_gotcha" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
-            <input type="hidden" name="_subject" value="New mailing list signup" />
+            <input type="hidden" name="_subject" value={words.emailSubject} />
             <button type="submit" className="btn btn-amber signup-button" disabled={status === "sending"}>
-              <span>{status === "sending" ? "Signing up…" : button}</span>
+              <span>{status === "sending" ? words.sending : words.button}</span>
               <span className="arrow-right" aria-hidden="true">
                 →
               </span>

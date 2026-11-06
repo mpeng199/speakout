@@ -1,5 +1,5 @@
 import { copy, site } from "@/content/series";
-import { getSchedule } from "@/lib/content";
+import { getSchedule, labelNumber } from "@/lib/content";
 import { AmberField } from "@/components/visuals/AmberField";
 import { Label } from "@/components/ui/Label";
 import { Ph } from "@/components/ui/Text";
@@ -17,20 +17,20 @@ export async function Hero() {
   const when = next ? (
     <>
       {next.display.dateShort}, {next.display.time}
-      {next.startTs !== null ? <RelativeDay ts={next.startTs} end={next.endTs} /> : null}
+      {next.startTs !== null ? <RelativeDay ts={next.startTs} end={next.endTs} words={copy.relativeDay} /> : null}
     </>
   ) : isFirst && site.firstEventLabel.trim() ? (
     <>
-      First event: <Ph value={site.firstEventLabel} />
+      {copy.hero.firstEvent} <Ph value={site.firstEventLabel} />
     </>
   ) : (
-    "To be announced"
+    copy.tba.when
   );
 
   return (
     <section
       id="top"
-      aria-label="Introduction"
+      aria-label={copy.hero.name}
       data-nav-theme="hero"
       className="hero intro relative isolate flex min-h-[max(100svh,44rem)] flex-col overflow-hidden bg-[color:var(--color-night)] text-[color:var(--color-paper)]"
     >
@@ -83,7 +83,7 @@ export async function Hero() {
               className="hero-label intro-fade"
               reveal="intro"
               left={site.name}
-              right={featured ? featured.label : `No. ${String(nextNumber).padStart(3, "0")}`}
+              right={featured ? featured.label : labelNumber(nextNumber)}
               title={
                 featured ? (
                   // The whole card opens the evening's page (the link is stretched over it).
@@ -91,30 +91,30 @@ export async function Hero() {
                     {featured.display.title}
                   </Link>
                 ) : isFirst ? (
-                  "First evening"
+                  copy.untitled.first
                 ) : (
-                  "Next evening"
+                  copy.untitled.next
                 )
               }
               rows={[
-                { term: "When", detail: when },
+                { term: copy.label.when, detail: when },
                 {
-                  term: "Where",
+                  term: copy.label.where,
                   detail: next?.venue ? next.venue.name : site.city,
                 },
-                { term: "Format", detail: "10–15 minute talk, then open Q&A" },
-                { term: "Admission", detail: "Free. Everyone welcome." },
+                { term: copy.label.format, detail: copy.hero.format },
+                { term: copy.label.admission, detail: copy.label.free },
               ]}
               footer={
                 featured ? (
                   <span className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
-                    <span>No slides. No science background needed.</span>
+                    <span>{copy.label.footer}</span>
                     <span className="t-label link-draw text-[color:var(--color-night)]" aria-hidden="true">
-                      Details →
+                      {copy.hero.details}
                     </span>
                   </span>
                 ) : (
-                  "No slides. No science background needed."
+                  copy.label.footer
                 )
               }
             />

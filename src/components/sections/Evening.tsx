@@ -23,7 +23,7 @@ export function Evening() {
             </p>
           </div>
 
-          <ol className="evening-steps" aria-label="The three parts of an evening">
+          <ol className="evening-steps" aria-label={copy.evening.stepsName}>
             {steps.map((s, i) => (
               <li key={s.title} data-step className="evening-step">
                 <p className="t-label tabular text-[color:var(--color-amber)]" data-step-line>
@@ -35,7 +35,7 @@ export function Evening() {
                 <p className="t-lead mt-6 max-w-[34ch] text-[color:var(--paper-2)]" data-step-line>
                   {s.text}
                 </p>
-                <ul className="mt-8 flex flex-wrap gap-2" data-step-line aria-label="Details">
+                <ul className="mt-8 flex flex-wrap gap-2" data-step-line aria-label={copy.evening.factsName}>
                   {s.facts.map((f) => (
                     <li key={f} className="fact t-label">
                       {f}

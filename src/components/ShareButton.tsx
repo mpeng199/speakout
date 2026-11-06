@@ -2,8 +2,11 @@
 
 import { useState } from "react";
 
+/** The button's words, from `copy.eventPage` in the content file. */
+type ShareWords = { share: string; shareCopied: string; shareFailed: string };
+
 /** Shares the current page: the system share sheet where there is one, otherwise copies the link. */
-export function ShareButton({ title, className = "" }: { title: string; className?: string }) {
+export function ShareButton({ title, words, className = "" }: { title: string; words: ShareWords; className?: string }) {
   const [state, setState] = useState<"idle" | "copied" | "failed">("idle");
 
   async function onClick() {
@@ -28,7 +31,7 @@ export function ShareButton({ title, className = "" }: { title: string; classNam
 
   return (
     <button type="button" onClick={onClick} className={className}>
-      <span aria-live="polite">{state === "copied" ? "Link copied" : state === "failed" ? "Copy the address bar link" : "Share this evening"}</span>
+      <span aria-live="polite">{state === "copied" ? words.shareCopied : state === "failed" ? words.shareFailed : words.share}</span>
     </button>
   );
 }

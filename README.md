@@ -11,7 +11,7 @@ Everything the site says lives in one file: **`src/content/series.ts`**.
 - **Settings**: series name, the hero promise, contact emails, social links, organizer, Formspree form ID.
 - **Events**: one entry per evening. Leave a field as `null` while it is TBA and the site says "TBA".
 - **Speakers**: only entries with `confirmed: true` appear on the site. Never add a name or photo without the researcher's permission.
-- **Topics, FAQ and section copy**.
+- **Topics, FAQ and wording**: every other word on the site, grouped by where it appears, down to buttons, the menu, screen-reader text and the link-preview images.
 
 Placeholders are written in `[square brackets]` and show on the site with a dashed underline. To list what is left:
 

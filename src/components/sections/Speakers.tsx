@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { copy } from "@/content/series";
-import { confirmedSpeakers } from "@/lib/content";
+import { confirmedSpeakers, fill } from "@/lib/content";
 
 function initials(name: string) {
   return name
@@ -31,7 +31,7 @@ export function Speakers() {
                 {copy.speakers.emptyNote}
               </p>
               <a href="#researchers" className="t-label link self-start sm:self-auto sm:whitespace-nowrap">
-                Are you a researcher? Give a talk →
+                {copy.speakers.researcherLink}
               </a>
             </div>
           </div>
@@ -41,7 +41,7 @@ export function Speakers() {
               <li key={s.id} className="speaker">
                 {s.photo ? (
                   <div className="speaker-portrait">
-                    <Image src={s.photo} alt={`Portrait of ${s.name}`} fill sizes="(min-width: 64rem) 30vw, (min-width: 40rem) 45vw, 90vw" className="object-cover" />
+                    <Image src={s.photo} alt={fill(copy.speakers.portrait, { name: s.name })} fill sizes="(min-width: 64rem) 30vw, (min-width: 40rem) 45vw, 90vw" className="object-cover" />
                   </div>
                 ) : (
                   <div className="speaker-badge" aria-hidden="true">
@@ -58,7 +58,7 @@ export function Speakers() {
                     {s.links.map((l) => (
                       <li key={l.url}>
                         <a href={l.url} className="t-label link" target="_blank" rel="noopener noreferrer">
-                          {l.label} ↗<span className="sr-only"> (opens in a new tab)</span>
+                          {l.label} ↗<span className="sr-only"> {copy.newTab}</span>
                         </a>
                       </li>
                     ))}

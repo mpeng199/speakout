@@ -1,9 +1,9 @@
 import type { MetadataRoute } from "next";
-import { site } from "@/content/series";
+import { copy, site } from "@/content/series";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: `${site.name}: free evening talks on medicine`,
+    name: copy.meta.appName,
     short_name: site.name,
     description: site.description,
     start_url: "/",

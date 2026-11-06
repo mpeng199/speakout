@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/Label";
 import { Ph } from "@/components/ui/Text";
 
 export function Researchers() {
-  const href = mailto(site.speakerEmail, `Giving a talk at ${site.name}`);
+  const href = mailto(site.speakerEmail, copy.researchers.emailSubject);
 
   return (
     <section id="researchers" aria-labelledby="researchers-title" data-nav-theme="night" className="panel panel-dark">
@@ -35,7 +35,7 @@ export function Researchers() {
                 </span>
               )}
               <p className="t-small text-[color:var(--paper-2)]">
-                or write to{" "}
+                {copy.researchers.orWriteTo}{" "}
                 {href ? (
                   <a href={href} className="link whitespace-nowrap">
                     {site.speakerEmail}
@@ -49,10 +49,10 @@ export function Researchers() {
 
           <div className="col-span-12 md:col-span-9 lg:col-span-5 lg:col-start-8 lg:pt-3">
             <Label
-              left="For researchers"
-              right="Details"
+              left={copy.researchers.termsLeft}
+              right={copy.researchers.termsRight}
               rows={copy.researchers.terms.map((t) => ({ term: t.term, detail: t.detail }))}
-              footer="Tell us a little about your work and which months suit you."
+              footer={copy.researchers.termsFooter}
             />
           </div>
         </div>

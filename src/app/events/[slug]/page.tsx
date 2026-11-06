@@ -4,7 +4,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { ViewTransition } from "react";
 import { copy, events, site } from "@/content/series";
-import { eventBySlug, getSchedule, googleCalendarUrl } from "@/lib/content";
+import { eventBySlug, fill, getSchedule, googleCalendarUrl } from "@/lib/content";
 import { AmberField } from "@/components/visuals/AmberField";
 import { Label } from "@/components/ui/Label";
 import { EventJsonLd } from "@/components/JsonLd";
@@ -22,9 +22,13 @@ export async function generateMetadata({ params }: PageProps<"/events/[slug]">):
   const event = eventBySlug(slug);
   if (!event) return {};
   const title = `${event.label}: ${event.display.title}`;
+  const t = copy.eventPage;
   const description = event.summary
     ? event.summary
-    : `${event.display.title} at ${site.name}, a free evening talk on medicine in ${site.city}. ${event.isTba ? "Date, venue and speaker to be announced." : `${event.display.date}, ${event.display.time}.`}`;
+    : fill(t.metaDescription, {
+        title: event.display.title,
+        when: event.isTba ? t.metaWhenTba : fill(t.metaWhen, { date: event.display.date, time: event.display.time }),
+      });
   return {
     title,
     description,
@@ -42,28 +46,30 @@ export default async function EventPage({ params }: PageProps<"/events/[slug]">)
   const { past } = await getSchedule();
   const isPast = past.some((p) => p.slug === event.slug);
   const googleCalendar = googleCalendarUrl(event);
+  const t = copy.eventPage;
+  const { doors, end } = event.display;
   // Once the evening has a time, each step of "How the evening runs" shows when it happens.
   const times: (string | null)[] = event.isTba
     ? []
-    : [event.display.doors ? `Doors ${event.display.doors}` : null, event.display.time, event.display.end ? `Until ${event.display.end}` : null];
-  const status = event.isTba ? "TBA" : isPast ? "Past event" : "Upcoming";
+    : [doors ? fill(t.runsDoors, { time: doors }) : null, event.display.time, end ? fill(t.runsUntil, { time: end }) : null];
+  const status = event.isTba ? t.status.tba : isPast ? t.status.past : t.status.upcoming;
   const speaker = event.speaker;
 
   const rows = [
     {
-      term: "When",
+      term: copy.label.when,
       detail: event.isTba ? (
-        "Date TBA"
+        event.display.date
       ) : (
         <>
           {event.display.date}
-          {event.startTs !== null && !isPast ? <RelativeDay ts={event.startTs} end={event.endTs} /> : null}
+          {event.startTs !== null && !isPast ? <RelativeDay ts={event.startTs} end={event.endTs} words={copy.relativeDay} /> : null}
         </>
       ),
     },
-    { term: "Time", detail: event.isTba ? "Time TBA" : `${event.display.time}${event.display.doors ? `, doors ${event.display.doors}` : ""}` },
+    { term: copy.label.time, detail: doors ? fill(t.timeWithDoors, { time: event.display.time, doors }) : event.display.time },
     {
-      term: "Where",
+      term: copy.label.where,
       detail: event.venue ? (
         <>
           {event.venue.name}
@@ -71,11 +77,11 @@ export default async function EventPage({ params }: PageProps<"/events/[slug]">)
           <span className="text-[color:var(--night-2)]">{event.venue.address}</span>
         </>
       ) : (
-        `Venue TBA, ${site.city}`
+        event.display.venue
       ),
     },
-    { term: "Speaker", detail: event.display.speaker },
-    { term: "Admission", detail: "Free. Everyone welcome." },
+    { term: copy.label.speaker, detail: event.display.speaker },
+    { term: copy.label.admission, detail: copy.label.free },
   ];
 
   return (
@@ -94,7 +100,7 @@ export default async function EventPage({ params }: PageProps<"/events/[slug]">)
         <div className="hero-shade pointer-events-none absolute inset-0 -z-10" />
 
         <div className="wrap relative flex flex-1 flex-col pt-[calc(var(--nav-h)+clamp(1.5rem,5vh,3.5rem))] pb-[clamp(2rem,6vh,4rem)]">
-          <nav aria-label="Breadcrumb" className="intro-fade" style={{ "--d": 0 } as React.CSSProperties}>
+          <nav aria-label={t.breadcrumb} className="intro-fade" style={{ "--d": 0 } as React.CSSProperties}>
             <ol className="t-label flex flex-wrap items-center gap-2 text-[color:var(--paper-3)]">
               <li>
                 <Link href="/" className="link-draw hover:text-[color:var(--color-paper)]">
@@ -104,7 +110,7 @@ export default async function EventPage({ params }: PageProps<"/events/[slug]">)
               <li aria-hidden="true">/</li>
               <li>
                 <Link href="/#events" className="link-draw hover:text-[color:var(--color-paper)]">
-                  Events
+                  {t.breadcrumbEvents}
                 </Link>
               </li>
               <li aria-hidden="true">/</li>
@@ -129,26 +135,23 @@ export default async function EventPage({ params }: PageProps<"/events/[slug]">)
                 </span>
               </h1>
               <p className="t-lead mt-8 max-w-[38ch] text-[color:var(--paper-2)] intro-fade" style={{ "--d": 100 } as React.CSSProperties}>
-                {event.summary ??
-                  (event.isTba
-                    ? `The date, venue, speaker and topic for this evening will be announced soon. Join the mailing list and we’ll tell you as soon as they’re set.`
-                    : `A researcher talks for 10 to 15 minutes, without slides. Then the room asks questions.`)}
+                {event.summary ?? (event.isTba ? t.introTba : t.intro)}
               </p>
               <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-4 intro-fade" style={{ "--d": 180 } as React.CSSProperties}>
                 {event.rsvpUrl && !isPast ? (
                   <a href={event.rsvpUrl} className="btn btn-amber btn-wrap magnetic w-full sm:w-auto" data-magnetic="0.3" target="_blank" rel="noopener noreferrer">
                     <span className="magnetic-inner">
-                      <span>RSVP</span>
+                      <span>{t.rsvp}</span>
                       <span className="arrow" aria-hidden="true">
                         ↗
                       </span>
                     </span>
-                    <span className="sr-only"> (opens in a new tab)</span>
+                    <span className="sr-only"> {copy.newTab}</span>
                   </a>
                 ) : (
                   <a href="#signup" className="btn btn-amber btn-wrap magnetic w-full sm:w-auto" data-magnetic="0.3">
                     <span className="magnetic-inner">
-                      <span>{isPast ? "Hear about the next one" : "Get notified when RSVP opens"}</span>
+                      <span>{isPast ? t.notifyPast : t.notify}</span>
                       <span className="arrow-down" aria-hidden="true">
                         ↓
                       </span>
@@ -157,18 +160,21 @@ export default async function EventPage({ params }: PageProps<"/events/[slug]">)
                 )}
                 <ShareButton
                   title={`${site.name} ${event.label}: ${event.display.title}`}
+                  words={{ share: t.share, shareCopied: t.shareCopied, shareFailed: t.shareFailed }}
                   className="t-label link-draw cursor-pointer border-0 bg-transparent py-2 text-[color:var(--paper-2)] hover:text-[color:var(--color-paper)] print:hidden"
                 />
               </div>
               {googleCalendar && !isPast ? (
                 <p className="t-label mt-6 flex flex-wrap items-baseline gap-x-5 text-[color:var(--paper-2)] intro-fade print:hidden" style={{ "--d": 220 } as React.CSSProperties}>
-                  <span className="basis-full pb-1 sm:basis-auto sm:pb-0">Add to calendar:</span>
+                  <span className="basis-full pb-1 sm:basis-auto sm:pb-0">{t.calendar}</span>
                   <a href={googleCalendar} target="_blank" rel="noopener noreferrer" className="link-draw py-2 hover:text-[color:var(--color-paper)]">
-                    Google<span className="sr-only"> Calendar (opens in a new tab)</span>
+                    {t.calendarGoogle}
+                    <span className="sr-only"> {t.calendarGoogleMore}</span>
                     <span aria-hidden="true"> ↗</span>
                   </a>
                   <a href={`/events/${event.slug}/calendar.ics`} className="link-draw py-2 hover:text-[color:var(--color-paper)]">
-                    Apple, Outlook<span className="sr-only"> and other calendars (.ics file)</span>
+                    {t.calendarOther}
+                    <span className="sr-only"> {t.calendarOtherMore}</span>
                   </a>
                 </p>
               ) : null}
@@ -176,7 +182,7 @@ export default async function EventPage({ params }: PageProps<"/events/[slug]">)
 
             <div className="col-span-12 md:col-span-8 lg:col-span-5 lg:col-start-8 xl:col-span-4 xl:col-start-9">
               <ViewTransition name={`label-${event.slug}`} share="morph" default="none">
-                <Label className="hero-label vt-label intro-fade" reveal="intro" left={site.name} right={event.label} title="Details" rows={rows} footer="No slides. No science background needed." />
+                <Label className="hero-label vt-label intro-fade" reveal="intro" left={site.name} right={event.label} title={t.labelTitle} rows={rows} footer={copy.label.footer} />
               </ViewTransition>
             </div>
           </div>
@@ -188,7 +194,7 @@ export default async function EventPage({ params }: PageProps<"/events/[slug]">)
         <div className="wrap grid-12 gap-y-16">
           <div className="col-span-12 lg:col-span-6">
             <h2 id="talk-title" className="t-label eyebrow">
-              The talk
+              {t.talkLabel}
             </h2>
             {event.title && event.summary ? (
               <>
@@ -202,25 +208,25 @@ export default async function EventPage({ params }: PageProps<"/events/[slug]">)
             ) : (
               <>
                 <p className="t-d2 balance mt-8" data-reveal="lines">
-                  Topic to be announced.
+                  {t.talkTba}
                 </p>
                 <p className="t-lead mt-6 max-w-[40ch] text-[color:var(--night-2)]" data-reveal="fade">
-                  Each evening takes on one question about medicine or drug development, explained for people with no science background.
+                  {t.talkTbaText}
                 </p>
                 <Link href="/#topics" className="t-label link mt-6 inline-block print:hidden">
-                  See example topics →
+                  {t.talkTbaLink}
                 </Link>
               </>
             )}
           </div>
 
           <div className="col-span-12 lg:col-span-5 lg:col-start-8">
-            <h2 className="t-label eyebrow">Speaker</h2>
+            <h2 className="t-label eyebrow">{t.speakerLabel}</h2>
             {speaker ? (
               <div className={`mt-8 grid gap-6 ${speaker.photo ? "sm:grid-cols-[10rem_1fr]" : "grid-cols-[4.5rem_1fr]"}`}>
                 <div className={speaker.photo ? "speaker-portrait w-40" : "speaker-badge"}>
                   {speaker.photo ? (
-                    <Image src={speaker.photo} alt={`Portrait of ${speaker.name}`} fill sizes="10rem" className="object-cover" />
+                    <Image src={speaker.photo} alt={fill(copy.speakers.portrait, { name: speaker.name })} fill sizes="10rem" className="object-cover" />
                   ) : (
                     <span className="t-d3" aria-hidden="true">
                       {speaker.name
@@ -242,10 +248,10 @@ export default async function EventPage({ params }: PageProps<"/events/[slug]">)
             ) : (
               <>
                 <p className="t-d2 mt-8" data-reveal="lines">
-                  To be announced.
+                  {t.speakerTba}
                 </p>
                 <p className="t-lead mt-6 max-w-[34ch] text-[color:var(--night-2)]" data-reveal="fade">
-                  We name speakers once they’ve confirmed.
+                  {t.speakerTbaText}
                 </p>
               </>
             )}
@@ -257,7 +263,7 @@ export default async function EventPage({ params }: PageProps<"/events/[slug]">)
       <section aria-labelledby="runs-title" data-nav-theme="night" className="panel panel-dark">
         <div className="wrap">
           <h2 id="runs-title" className="t-label eyebrow">
-            How the evening runs
+            {t.runsLabel}
           </h2>
           {/* On large screens the columns share rows (subgrid), so the text starts on one line even when a title wraps. */}
           <ol className="mt-12 grid gap-x-[var(--gutter)] gap-y-10 lg:grid-cols-3 lg:gap-y-0" data-reveal="stagger">
@@ -280,11 +286,11 @@ export default async function EventPage({ params }: PageProps<"/events/[slug]">)
         <div className="wrap grid-12 gap-y-10">
           <div className="col-span-12 lg:col-span-5">
             <h2 id="venue-title" className="t-label eyebrow">
-              Getting there
+              {t.venueLabel}
             </h2>
             {/* Long venue names ("…, Second Floor Reading Room") step down a size so they don't fill the column. */}
             <p className={`${event.venue && event.venue.name.length > 26 ? "t-d2" : "t-d1"} balance mt-8`} data-reveal="lines">
-              {event.venue ? event.venue.name : "Venue to be announced."}
+              {event.venue ? event.venue.name : t.venueTba}
             </p>
           </div>
           <div className="col-span-12 lg:col-span-6 lg:col-start-7 lg:pt-16">
@@ -294,13 +300,14 @@ export default async function EventPage({ params }: PageProps<"/events/[slug]">)
                 {event.venue.notes ? <p className="t-body mt-4 text-[color:var(--night-2)]">{event.venue.notes}</p> : null}
                 {event.venue.mapUrl ? (
                   <a href={event.venue.mapUrl} className="t-label link mt-6 inline-block" target="_blank" rel="noopener noreferrer">
-                    Open in maps ↗<span className="sr-only"> (opens in a new tab)</span>
+                    {t.venueMap}
+                    <span className="sr-only"> {copy.newTab}</span>
                   </a>
                 ) : null}
               </>
             ) : (
               <p className="t-lead max-w-[40ch] text-[color:var(--night-2)]" data-reveal="fade">
-                The address, entrance and nearest subway will be listed here once the venue is confirmed. Every evening is in {site.city}.
+                {t.venueTbaText}
               </p>
             )}
           </div>

@@ -1,5 +1,5 @@
 import { cacheLife } from "next/cache";
-import { events, site, speakers, type SeriesEvent, type Speaker } from "@/content/series";
+import { copy, events, site, speakers, type SeriesEvent, type Speaker } from "@/content/series";
 
 export const TIME_ZONE = "America/New_York";
 
@@ -29,8 +29,13 @@ export function siteUrl(): string {
   return "http://localhost:3000";
 }
 
+/** Puts values into a line from the content file: fill("Doors {time}", { time: "6 pm" }) → "Doors 6 pm". */
+export function fill(template: string, values: Record<string, string | number>): string {
+  return template.replace(/\{(\w+)\}/g, (token, key: string) => (key in values ? String(values[key]) : token));
+}
+
 export function labelNumber(n: number): string {
-  return `No. ${String(n).padStart(3, "0")}`;
+  return `${copy.label.number} ${String(n).padStart(3, "0")}`;
 }
 
 /* ───────────────────────────── Dates in New York time ───────────────────────────── */
@@ -153,17 +158,17 @@ export function toEventView(e: SeriesEvent): EventView {
     speaker,
     isTba,
     display: {
-      title: e.title ?? (e.number === 1 ? "First evening" : `Evening ${labelNumber(e.number)}`),
-      date: startTs !== null ? formatDateLong(startTs) : "Date TBA",
-      dateMedium: startTs !== null ? formatDateMedium(startTs) : "Date TBA",
-      dateShort: startTs !== null ? formatDateShort(startTs) : "TBA",
-      time: startTs !== null ? formatTime(startTs) : "Time TBA",
+      title: e.title ?? (e.number === 1 ? copy.untitled.first : fill(copy.untitled.numbered, { number: labelNumber(e.number) })),
+      date: startTs !== null ? formatDateLong(startTs) : copy.tba.date,
+      dateMedium: startTs !== null ? formatDateMedium(startTs) : copy.tba.date,
+      dateShort: startTs !== null ? formatDateShort(startTs) : copy.tba.short,
+      time: startTs !== null ? formatTime(startTs) : copy.tba.time,
       doors: doorsTs !== null ? formatTime(doorsTs) : null,
       end: endTs !== null ? formatTime(endTs) : null,
-      venue: e.venue?.name ?? "Venue TBA",
+      venue: e.venue?.name ?? copy.tba.venue,
       address: e.venue?.address ?? null,
-      speaker: speaker ? speaker.name : "To be announced",
-      topic: e.topic ?? (e.title ? e.title : "To be announced"),
+      speaker: speaker ? speaker.name : copy.tba.speaker,
+      topic: e.topic ?? (e.title ? e.title : copy.tba.topic),
     },
   };
 }
@@ -203,7 +208,7 @@ export const calendarStamp = (ts: number) => new Date(ts).toISOString().replace(
 export function calendarDetails(e: EventView) {
   return {
     title: `${site.name} ${e.label}: ${e.display.title}`,
-    description: `${e.summary ?? "A free evening talk on medicine, followed by questions from the room."} ${siteUrl()}/events/${e.slug}`,
+    description: `${e.summary ?? copy.eventPage.calendarDescription} ${siteUrl()}/events/${e.slug}`,
     location: e.venue ? `${e.venue.name}, ${e.venue.address}` : site.city,
   };
 }

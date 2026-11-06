@@ -5,8 +5,10 @@ import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 type NavLink = { label: string; hash: string };
+/** The menu's other words, from `copy.nav` in the content file. */
+type NavWords = { home: string; label: string; menu: string; close: string };
 
-export function Nav({ name, links, cta }: { name: string; links: NavLink[]; cta: NavLink }) {
+export function Nav({ name, links, cta, words }: { name: string; links: NavLink[]; cta: NavLink; words: NavWords }) {
   const pathname = usePathname();
   const base = pathname === "/" ? "" : "/";
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -61,10 +63,10 @@ export function Nav({ name, links, cta }: { name: string; links: NavLink[]; cta:
     <>
       <header className="site-nav" data-site-nav data-theme="hero" style={{ viewTransitionName: "site-header" }}>
         <div className="wrap site-nav-inner">
-          <Link href="/" className="site-nav-mark t-ui" aria-label={`${name}, home`}>
+          <Link href="/" className="site-nav-mark t-ui" aria-label={words.home}>
             {name}
           </Link>
-          <nav aria-label="Main" className="site-nav-links">
+          <nav aria-label={words.label} className="site-nav-links">
             <ul>
               {links.map((l) => (
                 <li key={l.hash}>
@@ -87,7 +89,7 @@ export function Nav({ name, links, cta }: { name: string; links: NavLink[]; cta:
             aria-controls="site-menu"
             onClick={show}
           >
-            Menu
+            {words.menu}
           </button>
         </div>
       </header>
@@ -96,7 +98,7 @@ export function Nav({ name, links, cta }: { name: string; links: NavLink[]; cta:
         ref={dialogRef}
         id="site-menu"
         className="site-menu"
-        aria-label="Menu"
+        aria-label={words.menu}
         onClick={(e) => {
           if ((e.target as HTMLElement).closest("a")) close();
         }}
@@ -105,10 +107,10 @@ export function Nav({ name, links, cta }: { name: string; links: NavLink[]; cta:
           <div className="site-menu-top">
             <span className="t-ui">{name}</span>
             <button type="button" className="t-label site-menu-close" onClick={close}>
-              Close
+              {words.close}
             </button>
           </div>
-          <nav aria-label="Menu">
+          <nav aria-label={words.menu}>
             <ul className="site-menu-links">
               {links.map((l, i) => (
                 <li key={l.hash} style={{ "--i": i } as React.CSSProperties}>

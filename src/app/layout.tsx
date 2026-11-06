@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
-import { site } from "@/content/series";
+import { copy, site } from "@/content/series";
 import { siteUrl } from "@/lib/content";
 import { Nav } from "@/components/Nav";
 import "./globals.css";
@@ -26,12 +26,11 @@ const serif = localFont({
   fallback: ["ui-serif", "Georgia", "serif"],
 });
 
-const title = `${site.name} · Free evening talks on medicine in New York`;
 const promise = site.promise.join(" ");
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
-  title: { default: title, template: `%s · ${site.name}` },
+  title: { default: copy.meta.title, template: `%s · ${site.name}` },
   description: site.description,
   applicationName: site.name,
   alternates: { canonical: "/" },
@@ -59,23 +58,18 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
-const navLinks = [
-  { label: "About", hash: "about" },
-  { label: "Format", hash: "format" },
-  { label: "Topics", hash: "topics" },
-  { label: "Events", hash: "events" },
-  { label: "Speakers", hash: "speakers" },
-  { label: "FAQ", hash: "faq" },
-];
+/** Each key of copy.nav.links is the id of the home page section the link jumps to. */
+const navLinks = Object.entries(copy.nav.links).map(([hash, label]) => ({ label, hash }));
+const { home, label, menu, close } = copy.nav;
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${sans.variable} ${serif.variable}`}>
       <body>
         <a href="#main" className="skip-link t-label">
-          Skip to content
+          {copy.nav.skipLink}
         </a>
-        <Nav name={site.name} links={navLinks} cta={{ label: "Get on the list", hash: "signup" }} />
+        <Nav name={site.name} links={navLinks} cta={{ label: copy.nav.cta, hash: "signup" }} words={{ home, label, menu, close }} />
         <main id="main" tabIndex={-1} className="outline-none">
           {children}
         </main>

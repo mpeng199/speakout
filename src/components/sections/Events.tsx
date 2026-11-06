@@ -1,26 +1,26 @@
 import Link from "next/link";
 import { ViewTransition } from "react";
 import { copy, site } from "@/content/series";
-import { getSchedule, type EventView } from "@/lib/content";
+import { fill, getSchedule, type EventView } from "@/lib/content";
 import { Label } from "@/components/ui/Label";
 import { RelativeDay } from "@/components/RelativeDay";
 
 export function EventCard({ event, headingLevel = "h3" }: { event: EventView; headingLevel?: "h2" | "h3" }) {
   const rows = [
     {
-      term: "When",
+      term: copy.label.when,
       detail: event.isTba ? (
-        "Date TBA"
+        event.display.date
       ) : (
         <>
           {event.display.dateMedium} · {event.display.time}
-          {event.startTs !== null ? <RelativeDay ts={event.startTs} end={event.endTs} /> : null}
+          {event.startTs !== null ? <RelativeDay ts={event.startTs} end={event.endTs} words={copy.relativeDay} /> : null}
         </>
       ),
     },
-    { term: "Where", detail: event.venue ? event.venue.name : `Venue TBA, ${site.city}` },
-    { term: "Speaker", detail: event.display.speaker },
-    { term: "Topic", detail: event.display.topic },
+    { term: copy.label.where, detail: event.display.venue },
+    { term: copy.label.speaker, detail: event.display.speaker },
+    { term: copy.label.topic, detail: event.display.topic },
   ];
   return (
     <article className="event-card" aria-labelledby={`event-${event.slug}`}>
@@ -31,7 +31,7 @@ export function EventCard({ event, headingLevel = "h3" }: { event: EventView; he
         left={
           <span className="inline-flex items-center gap-2.5">
             {site.name}
-            {event.isTba ? <span className="tba-chip">TBA</span> : null}
+            {event.isTba ? <span className="tba-chip">{copy.tba.short}</span> : null}
           </span>
         }
         right={event.label}
@@ -46,19 +46,19 @@ export function EventCard({ event, headingLevel = "h3" }: { event: EventView; he
           <div className="mt-2 flex flex-wrap items-center gap-x-5 gap-y-3">
             {event.rsvpUrl ? (
               <a href={event.rsvpUrl} className="btn btn-night relative z-[2]" target="_blank" rel="noopener noreferrer">
-                <span>RSVP</span>
+                <span>{copy.events.rsvp}</span>
                 <span className="arrow" aria-hidden="true">
                   ↗
                 </span>
-                <span className="sr-only"> for {event.display.title} (opens in a new tab)</span>
+                <span className="sr-only"> {fill(copy.events.rsvpMore, { title: event.display.title })}</span>
               </a>
             ) : (
               <span className="btn" aria-disabled="true">
-                RSVP opens soon
+                {copy.events.rsvpSoon}
               </span>
             )}
             <span className="t-label link-draw relative z-[1]" aria-hidden="true">
-              Event details →
+              {copy.events.details}
             </span>
           </div>
         }
@@ -83,7 +83,7 @@ export async function Events() {
 
         <div className="grid-12 mt-[clamp(3rem,6vw,5rem)] items-start gap-y-10">
           {upcoming.length ? (
-            <ul className="col-span-12 grid gap-[var(--gutter)] lg:col-span-7" aria-label="Upcoming events">
+            <ul className="col-span-12 grid gap-[var(--gutter)] lg:col-span-7" aria-label={copy.events.listName}>
               {upcoming.map((e) => (
                 // With a single evening announced, the card sits on a short stack of
                 // blank labels: more dates are coming.
@@ -102,7 +102,7 @@ export async function Events() {
               {copy.events.note}
             </p>
             <a href="#signup" className="t-label link mt-6 inline-block">
-              Get on the list ↓
+              {copy.events.cta}
             </a>
           </div>
         </div>
@@ -110,7 +110,7 @@ export async function Events() {
         {past.length ? (
           <div className="mt-[clamp(4rem,8vw,7rem)]">
             <h3 className="t-label text-[color:var(--paper-3)]">{copy.events.pastTitle}</h3>
-            <ol className="past-list mt-6" aria-label="Past evenings">
+            <ol className="past-list mt-6" aria-label={copy.events.pastTitle}>
               {past.map((e) => (
                 <li key={e.slug}>
                   <Link href={`/events/${e.slug}`} className="past-row grid-12 items-baseline gap-y-2">

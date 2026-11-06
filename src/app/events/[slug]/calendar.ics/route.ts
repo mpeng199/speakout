@@ -1,4 +1,4 @@
-import { events, site } from "@/content/series";
+import { copy, events, site } from "@/content/series";
 import { calendarDetails, calendarStamp as stamp, eventBySlug, siteUrl } from "@/lib/content";
 
 export async function generateStaticParams() {
@@ -32,7 +32,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ slug: s
   const { slug } = await params;
   const event = eventBySlug(slug);
   if (!event || event.startTs === null || event.endTs === null) {
-    return new Response("This event does not have a date yet.", { status: 404 });
+    return new Response(copy.eventPage.calendarNoDate, { status: 404 });
   }
   const url = `${siteUrl()}/events/${event.slug}`;
   const { title, description, location } = calendarDetails(event);

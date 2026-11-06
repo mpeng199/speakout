@@ -3,6 +3,7 @@ import { mailto } from "@/lib/content";
 import { Ph } from "@/components/ui/Text";
 
 export function Topics() {
+  const suggestHref = mailto(site.contactEmail, copy.topics.emailSubject);
   return (
     <section id="topics" aria-labelledby="topics-title" data-nav-theme="paper" className="panel panel-paper on-paper">
       <div className="wrap">
@@ -20,7 +21,7 @@ export function Topics() {
           </div>
         </div>
 
-        <ul className="topic-list mt-[clamp(3rem,7vw,6rem)]" aria-label="Example topics">
+        <ul className="topic-list mt-[clamp(3rem,7vw,6rem)]" aria-label={copy.topics.label}>
           {topics.map((t) => (
             <li key={t.question} className="topic grid-12 gap-y-3">
               <p className="t-label col-span-12 text-[color:var(--night-3)] md:col-span-3 lg:col-span-3 md:pt-[0.85em]" data-reveal="fade">
@@ -34,14 +35,14 @@ export function Topics() {
           ))}
         </ul>
         <p className="t-body mt-10 text-[color:var(--night-2)]">
-          Have a question you’d like answered?{" "}
-          {mailto(site.contactEmail, "A topic for Speakout") ? (
-            <a href={mailto(site.contactEmail, "A topic for Speakout")!} className="link text-[color:var(--color-night)]">
-              Suggest a topic
+          {copy.topics.ask}{" "}
+          {suggestHref ? (
+            <a href={suggestHref} className="link text-[color:var(--color-night)]">
+              {copy.topics.suggest}
             </a>
           ) : (
             <>
-              Suggest a topic at <Ph value={site.contactEmail} />
+              {copy.topics.suggestAt} <Ph value={site.contactEmail} />
             </>
           )}
           .

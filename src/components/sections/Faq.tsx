@@ -52,8 +52,8 @@ export function Faq() {
               ))}
             </ul>
             <p className="t-body mt-8 text-[color:var(--night-2)]">
-              Something else?{" "}
-              Write to {withPlaceholders(site.contactEmail)}
+              {copy.faq.more}{" "}
+              {copy.faq.writeTo} {withPlaceholders(site.contactEmail)}
               .
             </p>
           </div>
