@@ -1353,10 +1353,27 @@ html.menu-open {
 @media (min-width: 64rem) and (max-height: 56rem) {
   .hero > .wrap {
     padding-top: calc(var(--nav-h) + 1.25rem);
-    padding-bottom: 1.5rem;
+    /* The next section's rounded top overlaps the hero by its corner radius; stay clear of it. */
+    padding-bottom: calc(var(--sheet-r) + 0.75rem);
   }
   .hero h1 {
     margin-top: 1rem;
+  }
+  /* A real evening (long talk title, venue on two lines) made the home label tall enough to push
+     the button below the fold. Here the label shows two lines of title and one line per row;
+     it opens the evening's page, where everything is shown in full. */
+  .hero-stack .hero-label .t-d3 {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+  }
+  .hero-stack .hero-label .label-row dd {
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
   /* The three-line headline sets the hero's height; on a 720px-tall window it pushed the
      button below the fold. Capped by height, it keeps its proportion to the window. */
@@ -1370,7 +1387,7 @@ html.menu-open {
     margin-bottom: 0.65rem;
   }
   .hero .hero-bottom {
-    padding-top: 1.5rem;
+    padding-top: 1rem;
   }
   .hero .hero-sub {
     max-width: 36ch;
