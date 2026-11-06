@@ -30,14 +30,20 @@ export function Motion() {
   useEffect(() => {
     let cleanup: (() => void) | undefined;
     let cancelled = false;
+    let runs = 0;
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
 
+    // Also runs when reduced motion is switched on or off while the page is open: the previous
+    // setup is reverted (every element back as rendered) before the new one starts.
     const run = async () => {
+      const id = ++runs;
       cleanup?.();
+      cleanup = undefined;
       const reduce = media.matches;
       document.documentElement.dataset.motion = reduce ? "reduce" : "full";
       const { setupMotion } = await import("./setup");
-      if (cancelled) return;
+      // A newer run (the setting changed again while the module loaded) wins.
+      if (cancelled || id !== runs) return;
       cleanup = setupMotion({ reduce });
     };
 
