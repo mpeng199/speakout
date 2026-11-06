@@ -53,7 +53,9 @@ export function AmberField({ variant = "hero", id, className = "" }: { variant?:
     const wrap = wrapRef.current;
     if (!canvas || !wrap) return;
 
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    // Followed while mounted: with reduced motion on, the live light never runs (see rest() and wake()).
+    const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let reduce = motion.matches;
     const preset = PRESETS[variant];
     const pick = () => (wrap.clientWidth >= wrap.clientHeight ? preset.wide : preset.tall);
     const controller: AmberController = { params: { ...pick() }, preset: pick };
@@ -90,6 +92,7 @@ export function AmberField({ variant = "hero", id, className = "" }: { variant?:
     const photo = photoRef.current;
     let bitmap: ImageBitmap | null = null;
     let photoWanted = false;
+    let freeStill = 0;
     const drawPhoto = () => {
       if (!photo || !bitmap) return;
       const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
@@ -185,7 +188,7 @@ export function AmberField({ variant = "hero", id, className = "" }: { variant?:
     };
 
     const draw = (now: number) => {
-      if (disposed || frozen || !gl || !program || !ready) return;
+      if (disposed || frozen || reduce || !gl || !program || !ready) return;
       // Fully covered by the next section (sticky hero): idle cheaply until uncovered.
       if (wrap.closest("[data-covered]")) {
         raf = window.setTimeout(() => requestAnimationFrame(draw), 250) as unknown as number;
@@ -208,21 +211,21 @@ export function AmberField({ variant = "hero", id, className = "" }: { variant?:
         };
         started = now;
       }
-      if (!reduce && now - lastDraw < frameGap - 1) {
+      if (now - lastDraw < frameGap - 1) {
         raf = requestAnimationFrame(draw);
         return;
       }
-      if (!reduce && !firstFrame) watch(now - lastDraw);
+      if (!firstFrame) watch(now - lastDraw);
       lastDraw = now;
       if (frozen) return;
       resize();
       mouse.x += (mouse.tx - mouse.x) * 0.045;
       mouse.y += (mouse.ty - mouse.y) * 0.045;
       const p = controller.params;
-      const introT = preset.introMs && !reduce ? Math.min(1, (now - started) / preset.introMs) : 1;
+      const introT = preset.introMs ? Math.min(1, (now - started) / preset.introMs) : 1;
       const intro = 1 - Math.pow(1 - introT, 3);
       gl.uniform2f(u.res, canvas.width, canvas.height);
-      gl.uniform1f(u.time, 8 + (reduce ? 0 : (now - started) / 1000));
+      gl.uniform1f(u.time, 8 + (now - started) / 1000);
       gl.uniform1f(u.intro, intro);
       gl.uniform2f(u.mouse, mouse.x, mouse.y);
       gl.uniform3f(u.pool, p.x, p.y, p.r);
@@ -234,21 +237,23 @@ export function AmberField({ variant = "hero", id, className = "" }: { variant?:
         firstFrame = false;
         canvas.classList.add("is-ready");
         // Once the live light has faded in, free the still underneath it.
-        window.setTimeout(() => {
+        freeStill = window.setTimeout(() => {
           if (disposed || frozen || !photo) return;
           photo.width = 0;
           photo.height = 0;
           photo.classList.remove("is-ready");
           bitmap?.close();
           bitmap = null;
+          photoWanted = false; // so it can be loaded again if reduced motion is switched on
         }, 1600);
       }
-      if (!reduce && !frozen && visible && !document.hidden) raf = requestAnimationFrame(draw);
+      if (!frozen && visible && !document.hidden) raf = requestAnimationFrame(draw);
     };
 
     const start = () => {
       // Once only: a start queued by the first user gesture can land after a restore has already started it.
-      if (disposed || program) return;
+      // Not with reduced motion, which can be switched on after the start was queued.
+      if (disposed || reduce || program) return;
       ready = false;
       gl = canvas.getContext("webgl", {
         antialias: false,
@@ -358,7 +363,6 @@ export function AmberField({ variant = "hero", id, className = "" }: { variant?:
     io.observe(canvas);
 
     const ro = new ResizeObserver(() => {
-      if (reduce && program) requestAnimationFrame(draw);
       if (bitmap) requestAnimationFrame(drawPhoto);
     });
     ro.observe(canvas);
@@ -405,14 +409,16 @@ export function AmberField({ variant = "hero", id, className = "" }: { variant?:
       if (document.readyState === "complete") later();
       else window.addEventListener("load", later, { once: true });
     }
-    if (!reduce) {
+    const listen = () => {
       intents.forEach((t) => window.addEventListener(t, want, { passive: true, once: true }));
       const arm = () => {
-        timer = window.setTimeout(want, 7000);
+        window.clearTimeout(timer);
+        if (!reduce) timer = window.setTimeout(want, 7000);
       };
       if (document.readyState === "complete") arm();
       else window.addEventListener("load", arm, { once: true });
-    }
+    };
+    if (!reduce) listen();
     const io2 = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting && wanted) begin();
@@ -421,8 +427,49 @@ export function AmberField({ variant = "hero", id, className = "" }: { variant?:
     );
     io2.observe(canvas);
 
+    /*
+     * Reduced motion switched on while the page is open: the live light stops and the still takes
+     * its place, as when the setting is on at load. The context is kept; the program is dropped and
+     * built again if the light comes back.
+     */
+    const rest = () => {
+      wanted = false;
+      removeIntent();
+      window.clearTimeout(timer);
+      window.clearTimeout(freeStill);
+      cancelAnimationFrame(raf);
+      window.removeEventListener("pointermove", onPointer);
+      canvas.classList.remove("is-ready");
+      if (gl && program) {
+        const g = gl;
+        g.getAttachedShaders(program)?.forEach((s) => g.deleteShader(s));
+        g.deleteProgram(program);
+        g.deleteBuffer(g.getParameter(g.ARRAY_BUFFER_BINDING));
+      }
+      program = null;
+      ready = false;
+      firstFrame = true;
+      u = {};
+      loadPhoto(); // the evening has no photo: its vector still shows
+    };
+    // Switched off again: as at load, the live light starts on the next sign of a person.
+    // Not where the still took over because the GPU could not keep up.
+    const wake = () => {
+      if (frozen) return;
+      wanted = begun = false;
+      listen();
+    };
+    const onMotion = () => {
+      if (motion.matches === reduce) return;
+      reduce = motion.matches;
+      if (reduce) rest();
+      else wake();
+    };
+    motion.addEventListener("change", onMotion);
+
     return () => {
       disposed = true;
+      motion.removeEventListener("change", onMotion);
       cancelAnimationFrame(raf);
       io.disconnect();
       io2.disconnect();
